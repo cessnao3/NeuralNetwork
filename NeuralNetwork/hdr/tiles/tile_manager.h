@@ -12,6 +12,18 @@
 class RoadTileManager
 {
 public:
+    enum class RoadTileType
+    {
+        GRASS = 0,
+        STRAIGHT_V,
+        STRAIGHT_H,
+        CORNER_NW,
+        CORNER_SW,
+        CORNER_NE,
+        CORNER_SE
+    };
+
+public:
     RoadTileManager();
 
     RoadTile* get_tile(RoadTileType type);

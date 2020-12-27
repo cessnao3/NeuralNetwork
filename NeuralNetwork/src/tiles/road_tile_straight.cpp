@@ -35,7 +35,7 @@ void RoadTileStraight::draw_bitmap()
             0,
             WIDTH_LARGE,
             TILE_SIZE,
-            road_color);
+            get_road_color());
     }
     else
     {
@@ -44,6 +44,6 @@ void RoadTileStraight::draw_bitmap()
             WIDTH_SMALL,
             TILE_SIZE,
             WIDTH_LARGE,
-            road_color);
+            get_road_color());
     }
 }

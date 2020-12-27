@@ -56,10 +56,10 @@ void RoadTileCorner::draw_bitmap()
         corner_x,
         corner_y,
         WIDTH_LARGE,
-        road_color);
+        get_road_color());
     al_draw_filled_circle(
         corner_x,
         corner_y,
         WIDTH_SMALL,
-        grass_color);
+        get_grass_color());
 }

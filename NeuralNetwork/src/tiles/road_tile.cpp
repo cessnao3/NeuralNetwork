@@ -13,15 +13,11 @@ const uint32_t RoadTile::WIDTH_SMALL = (RoadTile::TILE_SIZE - RoadTile::ROAD_WID
 RoadTile::RoadTile() :
     bitmap(nullptr)
 {
-    // Initialize Colors
-    road_color = al_map_rgb(128, 128, 128);
-    grass_color = al_map_rgb(84, 171, 71);
+    // Empty Constructor
 }
 
 RoadTile::RoadTile(const RoadTile& other) :
-    bitmap(nullptr),
-    grass_color(grass_color),
-    road_color(road_color)
+    bitmap(nullptr)
 {
     if (other.bitmap != nullptr)
     {
@@ -36,9 +32,6 @@ RoadTile& RoadTile::operator=(const RoadTile& other)
     {
         return *this;
     }
-
-    grass_color = other.grass_color;
-    road_color = other.road_color;
 
     al_set_target_bitmap(bitmap);
     al_draw_bitmap(other.bitmap, 0, 0, 0);
@@ -68,7 +61,7 @@ void RoadTile::prepare_bitmap()
     bitmap = al_create_bitmap(TILE_SIZE, TILE_SIZE);
 
     al_set_target_bitmap(bitmap);
-    al_clear_to_color(grass_color);
+    al_clear_to_color(get_grass_color());
 }
 
 void RoadTile::finish_bitmap()
@@ -78,7 +71,7 @@ void RoadTile::finish_bitmap()
         1,
         TILE_SIZE,
         TILE_SIZE,
-        al_map_rgb(0, 0, 0),
+        al_map_rgb(48, 48, 48),
         0);
 }
 
@@ -88,4 +81,14 @@ RoadTile::~RoadTile()
     {
         al_destroy_bitmap(bitmap);
     }
+}
+
+ALLEGRO_COLOR RoadTile::get_road_color()
+{
+    return al_map_rgb(71, 71, 71);
+}
+
+ALLEGRO_COLOR RoadTile::get_grass_color()
+{
+    return al_map_rgb(62, 117, 59);
 }

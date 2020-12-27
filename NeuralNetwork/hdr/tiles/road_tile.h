@@ -4,18 +4,6 @@
 #include <allegro5/allegro.h>
 #include <cstdint>
 
-enum class RoadTileType
-{
-    GRASS = 0,
-    STRAIGHT_V,
-    STRAIGHT_H,
-    CORNER_NW,
-    CORNER_SW,
-    CORNER_NE,
-    CORNER_SE
-};
-
-
 class RoadTile
 {
 public:
@@ -41,6 +29,11 @@ protected:
     virtual void finish_bitmap();
 
 protected:
+    static ALLEGRO_COLOR get_road_color();
+
+    static ALLEGRO_COLOR get_grass_color();
+
+protected:
     ALLEGRO_BITMAP* bitmap;
 
 public:
@@ -48,9 +41,6 @@ public:
     static const uint32_t ROAD_WIDTH;
 
 protected:
-    ALLEGRO_COLOR road_color;
-    ALLEGRO_COLOR grass_color;
-
     static const uint32_t WIDTH_LARGE;
     static const uint32_t WIDTH_SMALL;
 };

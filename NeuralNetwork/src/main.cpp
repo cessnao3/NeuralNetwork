@@ -5,6 +5,7 @@
 
 #include "tiles/road_tile.h"
 #include "tiles/tile_manager.h"
+#include "tiles/tile_grid.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -58,8 +59,32 @@ int main()
         std::cerr << "Unable to initialize Allegro" << std::endl;
     }
 
+    // Initialize the road grid
+    RoadGrid grid(6, 4);
+
+    grid.set(0, 5, RoadTileManager::RoadTileType::CORNER_SW);
+    grid.set(0, 4, RoadTileManager::RoadTileType::STRAIGHT_H);
+    grid.set(0, 3, RoadTileManager::RoadTileType::STRAIGHT_H);
+    grid.set(0, 2, RoadTileManager::RoadTileType::CORNER_SE);
+    grid.set(1, 2, RoadTileManager::RoadTileType::CORNER_NW);
+    grid.set(1, 1, RoadTileManager::RoadTileType::STRAIGHT_H);
+    grid.set(1, 0, RoadTileManager::RoadTileType::CORNER_SE);
+    grid.set(2, 0, RoadTileManager::RoadTileType::STRAIGHT_V);
+    grid.set(3, 0, RoadTileManager::RoadTileType::CORNER_NE);
+    grid.set(3, 1, RoadTileManager::RoadTileType::STRAIGHT_H);
+    grid.set(3, 2, RoadTileManager::RoadTileType::STRAIGHT_H);
+    grid.set(3, 3, RoadTileManager::RoadTileType::CORNER_NW);
+    grid.set(2, 3, RoadTileManager::RoadTileType::CORNER_SE);
+    grid.set(2, 4, RoadTileManager::RoadTileType::CORNER_SW);
+    grid.set(3, 4, RoadTileManager::RoadTileType::CORNER_NE);
+    grid.set(3, 5, RoadTileManager::RoadTileType::CORNER_NW);
+    grid.set(2, 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+    grid.set(1, 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+
     // Initialize the display
-    ALLEGRO_DISPLAY* display = al_create_display(1024, 512);
+    ALLEGRO_DISPLAY* display = al_create_display(
+        RoadTile::TILE_SIZE * grid.get_width(),
+        RoadTile::TILE_SIZE * grid.get_height());
 
     // Initialize the event queue and add events to the main queue
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -114,9 +139,17 @@ int main()
                     al_clear_to_color(al_map_rgb(0, 0, 0));
                 }
 
-                for (size_t i = 0; i < manager.num_tiles(); ++i)
+                for (size_t w = 0; w < grid.get_width(); ++w)
                 {
-                    al_draw_bitmap(manager.get_tile(static_cast<RoadTileType>(i))->get_bitmap(), RoadTile::TILE_SIZE * i, 0, 0);
+                    for (size_t h = 0; h < grid.get_height(); ++h)
+                    {
+                        RoadGrid::GridLoc* loc = grid.at(h, w);
+                        al_draw_bitmap(
+                            loc->tile->get_bitmap(),
+                            loc->x,
+                            loc->y,
+                            0);
+                    }
                 }
 
                 al_flip_display();
