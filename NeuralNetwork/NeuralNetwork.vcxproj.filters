@@ -19,6 +19,12 @@
     <Filter Include="Header Files\neural">
       <UniqueIdentifier>{79f19384-d8bb-4005-8e2e-f763c22d816a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\tiles">
+      <UniqueIdentifier>{c2eb944d-3255-40d9-9365-96f7d2c685ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tiles">
+      <UniqueIdentifier>{c8b41ac2-07e3-4dff-9c6d-1b558023336e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -29,6 +35,30 @@
     </ClCompile>
     <ClCompile Include="src\neural\net.cpp">
       <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neural\link.cpp">
+      <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neural\layer.cpp">
+      <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\tile_grid.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\tile_manager.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile_grass.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile_straight.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile_corner.cpp">
+      <Filter>Source Files\tiles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,8 +77,23 @@
     <ClInclude Include="hdr\neural\net.h">
       <Filter>Header Files\neural</Filter>
     </ClInclude>
-    <ClInclude Include="hdr\neuralnet.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="hdr\tiles\road_tile.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\tiles\tile_manager.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\tiles\tile_grid.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\tiles\road_tile_grass.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\tiles\road_tile_straight.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\tiles\road_tile_corner.h">
+      <Filter>Header Files\tiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

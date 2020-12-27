@@ -54,7 +54,9 @@ public:
     /// <param name="index">the input index to set</param>
     /// <param name="value">the value to set</param>
     /// <returns>true if successful</returns>
-    bool set_input(const size_t index, const double value);
+    bool set_input(
+        const size_t index,
+        const double value);
 
     /// <summary>
     /// Obtains the given output for a value
@@ -62,7 +64,9 @@ public:
     /// <param name="index">the output index to get</param>
     /// <param name="output">the output parameter to use</param>
     /// <returns>true if successful</returns>
-    bool get_output(const size_t index, double& output);
+    bool get_output(
+        const size_t index,
+        double& output);
 
     /// <summary>
     /// Provides the number of inputs

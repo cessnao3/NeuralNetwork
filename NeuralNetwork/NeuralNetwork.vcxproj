@@ -72,15 +72,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <Allegro_AddonPrimitives>true</Allegro_AddonPrimitives>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -144,16 +148,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\neural\layer.cpp" />
+    <ClCompile Include="src\neural\link.cpp" />
     <ClCompile Include="src\neural\net.cpp" />
     <ClCompile Include="src\neural\node.cpp" />
+    <ClCompile Include="src\tiles\road_tile.cpp" />
+    <ClCompile Include="src\tiles\road_tile_corner.cpp" />
+    <ClCompile Include="src\tiles\road_tile_grass.cpp" />
+    <ClCompile Include="src\tiles\road_tile_straight.cpp" />
+    <ClCompile Include="src\tiles\tile_grid.cpp" />
+    <ClCompile Include="src\tiles\tile_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hdr\neuralnet.h" />
     <ClInclude Include="hdr\neural\layer.h" />
     <ClInclude Include="hdr\neural\link.h" />
     <ClInclude Include="hdr\neural\net.h" />
     <ClInclude Include="hdr\neural\neural_exception.h" />
     <ClInclude Include="hdr\neural\node.h" />
+    <ClInclude Include="hdr\tiles\road_tile.h" />
+    <ClInclude Include="hdr\tiles\road_tile_corner.h" />
+    <ClInclude Include="hdr\tiles\road_tile_grass.h" />
+    <ClInclude Include="hdr\tiles\road_tile_straight.h" />
+    <ClInclude Include="hdr\tiles\tile_grid.h" />
+    <ClInclude Include="hdr\tiles\tile_manager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

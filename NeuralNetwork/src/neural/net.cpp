@@ -7,15 +7,19 @@
 
 NeuralNetwork NeuralNetwork::from_layers(const std::vector<size_t>& layers)
 {
+    // Ensure that layers were added
     if (layers.size() == 0)
     {
         throw std::invalid_argument("layers vector must have at least one layer");
     }
 
+    // Create the net
     NeuralNetwork net;
 
+    // Iterate layers
     for (size_t i = 0; i < layers.size(); ++i)
     {
+        // Check that size values are provided
         if (layers[i] == 0)
         {
             std::ostringstream ss;
@@ -23,6 +27,7 @@ NeuralNetwork NeuralNetwork::from_layers(const std::vector<size_t>& layers)
             throw std::invalid_argument(ss.str());
         }
 
+        // Try to add the layer
         if (!net.add_layer())
         {
             std::ostringstream ss;
@@ -30,6 +35,7 @@ NeuralNetwork NeuralNetwork::from_layers(const std::vector<size_t>& layers)
             throw neural_exception(ss.str());
         }
 
+        // Add each node value
         for (size_t j = 0; j < layers[i]; ++j)
         {
             if (!net.add_node())
@@ -41,6 +47,7 @@ NeuralNetwork NeuralNetwork::from_layers(const std::vector<size_t>& layers)
         }
     }
 
+    // Return the net
     return net;
 }
 
@@ -80,11 +87,13 @@ bool NeuralNetwork::step()
         }
     }
 
+    // Return true if success
     return true;
 }
 
 bool NeuralNetwork::add_layer()
 {
+    // Attempt to add the layer
     if (layers.size() == 0 || layers.back().node_ids.size() > 0)
     {
         layers.push_back(NeuralLayer());
@@ -98,6 +107,7 @@ bool NeuralNetwork::add_layer()
 
 bool NeuralNetwork::add_node()
 {
+    // Ensure that layers are provided
     if (layers.size() == 0)
     {
         return false;
@@ -108,6 +118,7 @@ bool NeuralNetwork::add_node()
         NeuralLayer* prev = nullptr;
         if (layers.size() > 1)
         {
+            // Extract the previous layer
             prev = &layers[layers.size() - 2];
 
             // Ensure that the previous layer has nodes
@@ -142,9 +153,13 @@ bool NeuralNetwork::add_node()
 
 bool NeuralNetwork::set_input(const size_t index, const double value)
 {
+    // Ensure that the size is consistent
     if (layers.size() > 0 && layers.front().node_ids.size() > index)
     {
+        // Define the node index
         const size_t node_idx = layers.front().node_ids[index];
+
+        // Set the value and return success if the node index is within the nodes
         if (nodes.size() > node_idx)
         {
             nodes[node_idx].set_value(value);
@@ -163,9 +178,13 @@ bool NeuralNetwork::set_input(const size_t index, const double value)
 
 bool NeuralNetwork::get_output(const size_t index, double& output)
 {
+    // Ensure that the size is consistent
     if (layers.size() > 0 && layers.back().node_ids.size() > index)
     {
+        // Define the node index
         const size_t node_idx = layers.back().node_ids[index];
+
+        // Set the value and return success if the node index is within the nodes
         if (nodes.size() > node_idx)
         {
             output = nodes[node_idx].get_value();
@@ -184,6 +203,7 @@ bool NeuralNetwork::get_output(const size_t index, double& output)
 
 size_t NeuralNetwork::size_inputs() const
 {
+    // Return the input value size, or zero on failure
     if (layers.size() > 0)
     {
         return layers.front().node_ids.size();
@@ -196,6 +216,7 @@ size_t NeuralNetwork::size_inputs() const
 
 size_t NeuralNetwork::size_outputs() const
 {
+    // Return the output value size, or zero on failure
     if (layers.size() > 0)
     {
         return layers.back().node_ids.size();
@@ -213,7 +234,10 @@ std::vector<NeuralLink>& NeuralNetwork::get_links()
 
 std::string NeuralNetwork::get_status() const
 {
+    // Define the string stream
     std::ostringstream ss;
+
+    // Provide input values
     ss << "Inputs:" << std::endl;
 
     for (size_t i = 0; i < size_inputs(); ++i)
@@ -222,6 +246,7 @@ std::string NeuralNetwork::get_status() const
         ss << "  " << static_cast<int>(i) << ": " << n.get_value() << std::endl;
     }
 
+    // Provide output values
     ss << "Outputs:" << std::endl;
 
     for (size_t i = 0; i < size_outputs(); ++i)
@@ -230,5 +255,6 @@ std::string NeuralNetwork::get_status() const
         ss << "  " << static_cast<int>(i) << ": " << n.get_value() << std::endl;
     }
 
+    // Return the resulting string
     return ss.str();
 }

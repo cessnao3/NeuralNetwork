@@ -1,8 +1,13 @@
 #include <iostream>
 
-#include "neuralnet.h"
+#include "neural/net.h"
+#include "neural/neural_exception.h"
+
+#include "tiles/road_tile.h"
+#include "tiles/tile_manager.h"
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 int main()
 {
@@ -46,13 +51,15 @@ int main()
     std::cout << "Step 1" << std::endl << net.get_status() << std::endl;
 
     // Initialize Allegro
-    if (!al_init() || !al_install_keyboard())
+    if (!al_init() ||
+        !al_install_keyboard() ||
+        !al_init_primitives_addon())
     {
         std::cerr << "Unable to initialize Allegro" << std::endl;
     }
 
     // Initialize the display
-    ALLEGRO_DISPLAY* display = al_create_display(1024, 600);
+    ALLEGRO_DISPLAY* display = al_create_display(1024, 512);
 
     // Initialize the event queue and add events to the main queue
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -63,6 +70,12 @@ int main()
     ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 30.0);
     al_register_event_source(queue, al_get_timer_event_source(main_timer));
     al_start_timer(main_timer);
+
+    // Define the Roadtile
+    RoadTileManager manager;
+    
+    // Reset the display buffer
+    al_set_target_bitmap(al_get_backbuffer(display));
 
     // Define a loop for running
     bool running = true;
@@ -99,6 +112,11 @@ int main()
                 else
                 {
                     al_clear_to_color(al_map_rgb(0, 0, 0));
+                }
+
+                for (size_t i = 0; i < manager.num_tiles(); ++i)
+                {
+                    al_draw_bitmap(manager.get_tile(static_cast<RoadTileType>(i))->get_bitmap(), RoadTile::TILE_SIZE * i, 0, 0);
                 }
 
                 al_flip_display();

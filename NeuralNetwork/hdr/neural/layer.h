@@ -2,7 +2,6 @@
 #define __IO_NEURAL_LAYER__
 
 #include <vector>
-#include <algorithm>
 
 /// <summary>
 /// Defines a Neural Network layer
@@ -15,32 +14,16 @@ public:
     /// <summary>
     /// Adds a node to the layer
     /// </summary>
-    /// <param name="node_id">Defines the layer to add</param>
-    bool add_node(size_t node_id)
-    {
-        if (std::find(node_ids.begin(), node_ids.end(), node_id) == node_ids.end())
-        {
-            node_ids.push_back(node_id);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    /// <param name="node_id">the node ID to add</param>
+    /// <returns>true if successful</returns>
+    bool add_node(size_t node_id);
 
-    bool add_link(size_t link_id)
-    {
-        if (std::find(link_ids.begin(), link_ids.end(), link_id) == link_ids.end())
-        {
-            link_ids.push_back(link_id);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    /// <summary>
+    /// Adds a link to the layer
+    /// </summary>
+    /// <param name="link_id">the link ID to add</param>
+    /// <returns>true if successful</returns>
+    bool add_link(size_t link_id);
 
 private:
     /// <summary>
