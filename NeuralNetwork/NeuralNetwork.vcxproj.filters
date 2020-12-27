@@ -25,6 +25,9 @@
     <Filter Include="Source Files\tiles">
       <UniqueIdentifier>{c8b41ac2-07e3-4dff-9c6d-1b558023336e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\car">
+      <UniqueIdentifier>{c29c0348-19cd-4429-91f0-27cff9704fc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -94,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="hdr\tiles\road_tile_corner.h">
       <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\car\car.h">
+      <Filter>Header Files\car</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -160,6 +160,7 @@
     <ClCompile Include="src\tiles\tile_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hdr\car\car.h" />
     <ClInclude Include="hdr\neural\layer.h" />
     <ClInclude Include="hdr\neural\link.h" />
     <ClInclude Include="hdr\neural\net.h" />

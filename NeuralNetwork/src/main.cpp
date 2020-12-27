@@ -10,6 +10,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "car/car.h"
+
 int main()
 {
     // Define the Neural Network
@@ -81,6 +83,10 @@ int main()
     grid.set(2, 5, RoadTileManager::RoadTileType::STRAIGHT_V);
     grid.set(1, 5, RoadTileManager::RoadTileType::STRAIGHT_V);
 
+    // Define the car
+    Car car;
+    car.init_bitmap();
+
     // Initialize the display
     ALLEGRO_DISPLAY* display = al_create_display(
         RoadTile::TILE_SIZE * grid.get_width(),
@@ -102,9 +108,12 @@ int main()
     // Reset the display buffer
     al_set_target_bitmap(al_get_backbuffer(display));
 
+    // Add go factor
+    double go_factor = 0.0;
+    double turn_val = 0.0;
+
     // Define a loop for running
     bool running = true;
-    bool is_white = true;
     while (running)
     {
         // Define the event
@@ -117,27 +126,47 @@ int main()
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             running = false;
             break;
-        case ALLEGRO_EVENT_KEY_DOWN:
-            if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+        case ALLEGRO_EVENT_KEY_CHAR:
+        {
+            if (event.keyboard.keycode == ALLEGRO_KEY_UP && go_factor < 1.0)
             {
-                running = false;
+                go_factor += 0.1;
             }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_SPACE)
+            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN && go_factor > 0.0)
             {
-                is_white = !is_white;
+                go_factor -= 0.1;
+            }
+            
+            if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT && turn_val < 1.0)
+            {
+                turn_val += 0.1;
+            }
+            else if (event.keyboard.keycode == ALLEGRO_KEY_LEFT && turn_val > -1.0)
+            {
+                turn_val -= 0.1;
+            }
+        }
+            break;
+        case ALLEGRO_EVENT_KEY_DOWN:
+            switch (event.keyboard.keycode)
+            {
+            case ALLEGRO_KEY_ESCAPE:
+                running = false;
+                break;
             }
             break;
+        case ALLEGRO_EVENT_KEY_UP:
+            switch (event.keyboard.keycode)
+            {
+            case ALLEGRO_KEY_LEFT:
+            case ALLEGRO_KEY_RIGHT:
+                turn_val = 0.0;
+                break;
+            }
         case ALLEGRO_EVENT_TIMER:
             if (event.timer.source == main_timer)
             {
-                if (is_white)
-                {
-                    al_clear_to_color(al_map_rgb(255, 255, 255));
-                }
-                else
-                {
-                    al_clear_to_color(al_map_rgb(0, 0, 0));
-                }
+                car.step(go_factor, turn_val);
 
                 for (size_t w = 0; w < grid.get_width(); ++w)
                 {
@@ -152,6 +181,14 @@ int main()
                     }
                 }
 
+                al_draw_rotated_bitmap(
+                    car.get_bitmap(),
+                    car.get_width() / 2,
+                    car.get_height() / 2,
+                    car.get_x(),
+                    car.get_y(),
+                    car.get_rotation(),
+                    0);
                 al_flip_display();
             }
             break;
