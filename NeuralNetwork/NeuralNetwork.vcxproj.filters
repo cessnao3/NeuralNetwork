@@ -28,6 +28,11 @@
     <Filter Include="Header Files\car">
       <UniqueIdentifier>{c29c0348-19cd-4429-91f0-27cff9704fc9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\car">
+      <UniqueIdentifier>{25ce2dba-eac5-4489-a719-6caabf1865f6}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -64,7 +69,7 @@
       <Filter>Source Files\tiles</Filter>
     </ClCompile>
     <ClCompile Include="src\car\car.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\car</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

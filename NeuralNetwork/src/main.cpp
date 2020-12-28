@@ -97,6 +97,7 @@ int main()
     ALLEGRO_DISPLAY* display = al_create_display(
         RoadTile::TILE_SIZE * grid.get_width(),
         RoadTile::TILE_SIZE * grid.get_height());
+    al_set_window_title(display, "Neural Network");
 
     // Initialize the event queue and add events to the main queue
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -122,6 +123,9 @@ int main()
     // Add go factor
     double go_factor = 0.0;
     double turn_val = 0.0;
+
+    // Define the sensor number
+    size_t sensor_num = 0;
 
     // Define a loop for running
     bool running = true;
@@ -155,6 +159,24 @@ int main()
             case ALLEGRO_KEY_RIGHT:
                 turn_val = 1.0;
                 break;
+            case ALLEGRO_KEY_HOME:
+                car.reset();
+                break;
+            case ALLEGRO_KEY_0:
+                sensor_num = 0;
+                break;
+            case ALLEGRO_KEY_1:
+                sensor_num = 1;
+                break;
+            case ALLEGRO_KEY_2:
+                sensor_num = 2;
+                break;
+            case ALLEGRO_KEY_3:
+                sensor_num = 3;
+                break;
+            case ALLEGRO_KEY_4:
+                sensor_num = 4;
+                break;
             }
             break;
         case ALLEGRO_EVENT_KEY_UP:
@@ -185,19 +207,38 @@ int main()
                     }
                 }
 
+                // Draw the car sensor lines
+                for (size_t i = 0; i < 5; ++i)
+                {
+                    Car::SensorResult s = car.get_sensor(grid, i);
+                    al_draw_line(
+                        s.start_x,
+                        s.start_y,
+                        s.impact_x,
+                        s.impact_y,
+                        al_map_rgb(255, 255, 255),
+                        0);
+                }
+
+                // Draw the Car
                 al_draw_rotated_bitmap(
                     car.get_bitmap(),
                     car.get_width() / 2,
                     car.get_height() / 2,
-                    car.get_x(),
-                    car.get_y(),
+                    car.get_car_x(),
+                    car.get_car_y(),
                     car.get_rotation(),
                     0);
+
+                // Flip the Display Buffer
                 al_flip_display();
             }
             else if (event.timer.source == car_step_timer)
             {
+                // Step the car
                 car.step(go_factor, turn_val);
+                car.check_collision(grid);
+                std::cout << "D: " << car.get_distance() << std::endl;
             }
             break;
         }
@@ -209,6 +250,7 @@ int main()
     al_destroy_timer(main_timer);
     al_destroy_timer(car_step_timer);
 
+    // Reset Pointers
     display = nullptr;
     queue = nullptr;
     main_timer = nullptr;

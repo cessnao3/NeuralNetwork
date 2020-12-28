@@ -13,6 +13,15 @@ public:
     struct GridLoc
     {
     public:
+        GridLoc() :
+            tile(nullptr),
+            x(0),
+            y(0),
+            type(RoadTileManager::RoadTileType::GRASS)
+        {
+            // Empty Constructor
+        }
+
         RoadTile* tile;
         uint32_t x;
         uint32_t y;
@@ -29,8 +38,14 @@ public:
     void reset_tile_pointers();
 
     GridLoc* at(const size_t row, const size_t col);
-
     GridLoc* at(const size_t ind);
+
+    const GridLoc* get_for_xy_const(const double x, const double y) const;
+    const GridLoc* get_for_xy(const double x, const double y) const;
+    GridLoc* get_for_xy(const double x, const double y);
+
+    const GridLoc* at(const size_t row, const size_t col) const;
+    const GridLoc* at(const size_t ind) const;
 
     bool set(const size_t row, const size_t col, const RoadTileManager::RoadTileType type);
 

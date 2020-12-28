@@ -44,6 +44,11 @@ RoadGrid::GridLoc* RoadGrid::at(const size_t row, const size_t col)
     return this->at(rc_to_ind(row, col));
 }
 
+const RoadGrid::GridLoc* RoadGrid::at(const size_t row, const size_t col) const
+{
+    return this->at(rc_to_ind(row, col));
+}
+
 RoadGrid::GridLoc* RoadGrid::at(const size_t ind)
 {
     if (ind < tiles.size())
@@ -54,6 +59,51 @@ RoadGrid::GridLoc* RoadGrid::at(const size_t ind)
     {
         return nullptr;
     }
+}
+
+const RoadGrid::GridLoc* RoadGrid::at(const size_t ind) const
+{
+    if (ind < tiles.size())
+    {
+        return &tiles[ind];
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+const RoadGrid::GridLoc* RoadGrid::get_for_xy_const(const double x, const double y) const
+{
+    // Determine if we have gone off the screen to the left/top
+    if (x < 0 || y < 0)
+    {
+        return nullptr;
+    }
+
+    // Extract the row/col index
+    const size_t row = static_cast<size_t>(y / RoadTile::TILE_SIZE);
+    const size_t col = static_cast<size_t>(x / RoadTile::TILE_SIZE);
+
+    // Determine if we have gone off the screen to teh right/bottom
+    if (row >= get_height() || col >= get_width())
+    {
+        return nullptr;
+    }
+
+    // Otherwise, return the resulting value
+    return at(row, col);
+}
+
+const RoadGrid::GridLoc* RoadGrid::get_for_xy(const double x, const double y) const
+{
+    return get_for_xy_const(x, y);
+}
+
+RoadGrid::GridLoc* RoadGrid::get_for_xy(const double x, const double y)
+{
+    const GridLoc* loc = get_for_xy_const(x, y);
+    return const_cast<GridLoc*>(loc);
 }
 
 bool RoadGrid::set(const size_t row, const size_t col, const RoadTileManager::RoadTileType type)
