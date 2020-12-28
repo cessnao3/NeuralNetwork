@@ -17,102 +17,47 @@ public:
         uint32_t x;
         uint32_t y;
         RoadTileManager::RoadTileType type;
+
+        const uint32_t get_center_x() const;
+
+        const uint32_t get_center_y() const;
     };
 
 public:
-    RoadGrid(size_t width, size_t height) :
-        width(width),
-        height(height)
-    {
-        for (size_t r = 0; r < height; ++r)
-        {
-            for (size_t c = 0; c < width; ++c)
-            {
-                GridLoc loc;
-                loc.tile = nullptr;
-                loc.x = c * RoadTile::TILE_SIZE;
-                loc.y = r * RoadTile::TILE_SIZE;
-                loc.type = RoadTileManager::RoadTileType::GRASS;
-                tiles.push_back(loc);
-            }
-        }
+    RoadGrid(size_t width, size_t height);
 
-        reset_tile_pointers();
-    }
+    void reset_tile_pointers();
 
-    void reset_tile_pointers()
-    {
-        for (size_t i = 0; i < tiles.size(); ++i)
-        {
-            tiles[i].tile = manager.get_tile(tiles[i].type);
-        }
-    }
+    GridLoc* at(const size_t row, const size_t col);
 
-    GridLoc* at(const size_t row, const size_t col)
-    {
-        return this->at(rc_to_ind(row, col));
-    }
+    GridLoc* at(const size_t ind);
 
-    GridLoc* at(const size_t ind)
-    {
-        if (ind < tiles.size())
-        {
-            return &tiles[ind];
-        }
-        else
-        {
-            return nullptr;
-        }
-    }
+    bool set(const size_t row, const size_t col, const RoadTileManager::RoadTileType type);
 
-    bool set(const size_t row, const size_t col, const RoadTileManager::RoadTileType type)
-    {
-        return set(rc_to_ind(row, col), type);
-    }
+    bool set(const size_t ind, const RoadTileManager::RoadTileType type);
 
-    bool set(const size_t ind, const RoadTileManager::RoadTileType type)
-    {
-        if (ind < tiles.size())
-        {
-            tiles[ind].type = type;
-            tiles[ind].tile = manager.get_tile(type);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    size_t get_width() const;
 
-    size_t get_width() const
-    {
-        return width;
-    }
+    size_t get_height() const;
 
-    size_t get_height() const
-    {
-        return height;
-    }
+    void set_start_ind(const size_t start_ind);
+
+    void set_start_ind(const size_t row, const size_t col);
+
+    size_t get_start_ind() const;
 
 protected:
-    size_t rc_to_ind(const size_t row, const size_t col) const
-    {
-        return width * row + col;
-    }
+    size_t rc_to_ind(const size_t row, const size_t col) const;
 
-    size_t ind_to_r(const size_t ind) const
-    {
-        return ind / width;
-    }
+    size_t ind_to_r(const size_t ind) const;
 
-    size_t ind_to_c(const size_t ind) const
-    {
-        return ind % width;
-    }
+    size_t ind_to_c(const size_t ind) const;
 
 protected:
     size_t width;
     size_t height;
+
+    size_t start_ind;
 
     std::vector<GridLoc> tiles;
     RoadTileManager manager;

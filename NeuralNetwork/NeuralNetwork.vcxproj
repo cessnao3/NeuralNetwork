@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\car\car.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\neural\layer.cpp" />
     <ClCompile Include="src\neural\link.cpp" />

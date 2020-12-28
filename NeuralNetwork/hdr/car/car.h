@@ -7,101 +7,47 @@
 
 class Car
 {
-protected:
-    const double PI = 3.14159265358979323846;
+public:
+    static const double PI;
 
 public:
-    Car() :
-        rotation(0.0),
-        x(0.0),
-        y(0.0)
-    {
-        // Empty Constructor
-    }
+    Car();
 
-    void init_bitmap()
-    {
-        if (bitmap != nullptr)
-        {
-            al_destroy_bitmap(bitmap);
-            bitmap = nullptr;
-        }
-        
-        bitmap = al_create_bitmap(get_width(), get_height());
-        al_set_target_bitmap(bitmap);
+    void init_bitmap();
 
-        al_clear_to_color(al_map_rgb(0, 0, 255));
-    }
+    ALLEGRO_BITMAP* get_bitmap();
 
-    ALLEGRO_BITMAP* get_bitmap()
-    {
-        return bitmap;
-    }
+    void set_rotation(const double rot_val);
 
-    void step(const double forward, const double turn)
-    {
-        const double fwd_val = constrain_input(forward);
-        const double trn_val = constrain_input(turn);
-        rotation = std::fmod(rotation + trn_val * 0.03 * fwd_val, 2 * PI);
-        x += std::cos(rotation) * fwd_val;
-        y += std::sin(rotation) * fwd_val;
-    }
+    void set_pos(const double x, const double y);
 
-    double get_rotation() const
-    {
-        return rotation;
-    }
+    void step(const double forward, const double turn);
 
-    double get_x() const
-    {
-        return x;
-    }
+    double get_rotation() const;
 
-    double get_y() const
-    {
-        return y;
-    }
+    double get_x() const;
 
-    double get_width() const
-    {
-        return 60.0;
-    }
+    double get_y() const;
 
-    double get_height() const
-    {
-        return 30.0;
-    }
+    double get_width() const;
 
-    ~Car()
-    {
-        if (bitmap != nullptr)
-        {
-            al_destroy_bitmap(bitmap);
-            bitmap = nullptr;
-        }
-    }
+    double get_height() const;
+
+    ~Car();
 
 protected:
-    double constrain_input(const double val)
-    {
-        if (val > 1.0)
-        {
-            return 1.0;
-        }
-        else if (val < -1.0)
-        {
-            return -1.0;
-        }
-        else
-        {
-            return val;
-        }
-    }
+    double constrain_input(const double val);
+
+    double step_filter(const double in, const double prev, const double rate);
 
 protected:
     double rotation;
     double x;
     double y;
+
+    double input_forward_prev;
+    double input_turn_prev;
+
     ALLEGRO_BITMAP* bitmap;
 };
 

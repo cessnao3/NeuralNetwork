@@ -83,9 +83,15 @@ int main()
     grid.set(2, 5, RoadTileManager::RoadTileType::STRAIGHT_V);
     grid.set(1, 5, RoadTileManager::RoadTileType::STRAIGHT_V);
 
+    grid.set_start_ind(2, 0);
+
     // Define the car
     Car car;
     car.init_bitmap();
+
+    RoadGrid::GridLoc* start_pos = grid.at(grid.get_start_ind());
+    car.set_pos(start_pos->get_center_x(), start_pos->get_center_y());
+    car.set_rotation(3 * car.PI / 2);
 
     // Initialize the display
     ALLEGRO_DISPLAY* display = al_create_display(
@@ -101,6 +107,11 @@ int main()
     ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 30.0);
     al_register_event_source(queue, al_get_timer_event_source(main_timer));
     al_start_timer(main_timer);
+
+    // Define an event timer for the physics step
+    ALLEGRO_TIMER* car_step_timer = al_create_timer(1.0 / 100.0);
+    al_register_event_source(queue, al_get_timer_event_source(car_step_timer));
+    al_start_timer(car_step_timer);
 
     // Define the Roadtile
     RoadTileManager manager;
@@ -126,38 +137,33 @@ int main()
         case ALLEGRO_EVENT_DISPLAY_CLOSE:
             running = false;
             break;
-        case ALLEGRO_EVENT_KEY_CHAR:
-        {
-            if (event.keyboard.keycode == ALLEGRO_KEY_UP && go_factor < 1.0)
-            {
-                go_factor += 0.1;
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_DOWN && go_factor > 0.0)
-            {
-                go_factor -= 0.1;
-            }
-            
-            if (event.keyboard.keycode == ALLEGRO_KEY_RIGHT && turn_val < 1.0)
-            {
-                turn_val += 0.1;
-            }
-            else if (event.keyboard.keycode == ALLEGRO_KEY_LEFT && turn_val > -1.0)
-            {
-                turn_val -= 0.1;
-            }
-        }
-            break;
         case ALLEGRO_EVENT_KEY_DOWN:
             switch (event.keyboard.keycode)
             {
             case ALLEGRO_KEY_ESCAPE:
                 running = false;
                 break;
+            case ALLEGRO_KEY_UP:
+                go_factor = 1.0;
+                break;
+            case ALLEGRO_KEY_DOWN:
+                go_factor = -1.0;
+                break;
+            case ALLEGRO_KEY_LEFT:
+                turn_val = -1.0;
+                break;
+            case ALLEGRO_KEY_RIGHT:
+                turn_val = 1.0;
+                break;
             }
             break;
         case ALLEGRO_EVENT_KEY_UP:
             switch (event.keyboard.keycode)
             {
+            case ALLEGRO_KEY_UP:
+            case ALLEGRO_KEY_DOWN:
+                go_factor = 0.0;
+                break;
             case ALLEGRO_KEY_LEFT:
             case ALLEGRO_KEY_RIGHT:
                 turn_val = 0.0;
@@ -166,8 +172,6 @@ int main()
         case ALLEGRO_EVENT_TIMER:
             if (event.timer.source == main_timer)
             {
-                car.step(go_factor, turn_val);
-
                 for (size_t w = 0; w < grid.get_width(); ++w)
                 {
                     for (size_t h = 0; h < grid.get_height(); ++h)
@@ -191,6 +195,10 @@ int main()
                     0);
                 al_flip_display();
             }
+            else if (event.timer.source == car_step_timer)
+            {
+                car.step(go_factor, turn_val);
+            }
             break;
         }
     }
@@ -199,10 +207,12 @@ int main()
     al_destroy_display(display);
     al_destroy_event_queue(queue);
     al_destroy_timer(main_timer);
+    al_destroy_timer(car_step_timer);
 
     display = nullptr;
     queue = nullptr;
     main_timer = nullptr;
+    car_step_timer = nullptr;
 
     // Return Success
     return 0;

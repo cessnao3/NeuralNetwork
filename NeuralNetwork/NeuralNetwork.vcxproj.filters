@@ -63,6 +63,9 @@
     <ClCompile Include="src\tiles\road_tile_corner.cpp">
       <Filter>Source Files\tiles</Filter>
     </ClCompile>
+    <ClCompile Include="src\car\car.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hdr\neural\neural_exception.h">
