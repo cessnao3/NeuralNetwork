@@ -33,6 +33,9 @@
       <Extensions>
       </Extensions>
     </Filter>
+    <Filter Include="Header Files\optim">
+      <UniqueIdentifier>{cb78cf41-b360-4347-8f13-22399c8b5c2f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -108,6 +111,9 @@
     </ClInclude>
     <ClInclude Include="hdr\car\car.h">
       <Filter>Header Files\car</Filter>
+    </ClInclude>
+    <ClInclude Include="hdr\optim\genetic.h">
+      <Filter>Header Files\optim</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

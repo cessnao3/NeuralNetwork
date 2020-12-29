@@ -85,6 +85,13 @@ bool NeuralNetwork::step()
             // Update the value
             to.set_value(to.get_value() + from.get_value() * link.get_gain());
         }
+
+        // Update to normalize between 0 and 1
+        for (size_t j = 0; j < layer.node_ids.size(); ++j)
+        {
+            NeuralNode& n = nodes[layer.node_ids[j]];
+            n.set_value(n.get_value() / layers[i - 1].node_ids.size());
+        }
     }
 
     // Return true if success

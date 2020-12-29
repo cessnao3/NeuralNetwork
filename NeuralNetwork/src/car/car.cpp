@@ -119,7 +119,7 @@ void Car::step(const double forward, const double turn)
 
         // Set the forward and turn increments
         const double fwd_incr = 0.005 * ((input_same_sign) ? 1 : 10);
-        const double trn_incr = 0.05;
+        const double trn_incr = 0.075;
 
         // Filter the forward values
         const double fwd_val = step_filter(
@@ -303,6 +303,10 @@ Car::SensorResult Car::get_sensor(const RoadGrid& grid, const size_t sensor_num)
         return calc_sensor_dist(grid, 0, 1);
     case 4:
         return calc_sensor_dist(grid, 0, -1);
+    case 5:
+        return calc_sensor_dist(grid, 2, 1);
+    case 6:
+        return calc_sensor_dist(grid, 2, -1);
     default:
         throw std::range_error("invalid sensor number provided to car");
     }

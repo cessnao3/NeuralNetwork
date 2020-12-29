@@ -9,8 +9,17 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 
 #include "car/car.h"
+
+#include "optim/genetic.h"
+
+#include <sstream>
+#include <string>
+
+#include <iomanip>
 
 int main()
 {
@@ -18,7 +27,7 @@ int main()
     NeuralNetwork net;
 
     // Define the layer sizes
-    std::vector<size_t> layer_sizes = { 5, 7, 4 };
+    std::vector<size_t> layer_sizes = { 7, 21, 4 };
 
     // Create the layer
     try
@@ -31,15 +40,9 @@ int main()
         return 1;
     }
 
-    // Set Links to have unity gain
-    std::vector<NeuralLink>& links = net.get_links();
-    for (size_t i = 0; i < links.size(); ++i)
-    {
-        links[i].set_gain(1.0);
-    }
-
-    // Set an initial input
-    net.set_input(0, 1.0);
+    // Define the genetic algorithm
+    GeneticOptim optim(25, net.get_links().size());
+    optim.init_population();
 
     // Define Success
     std::cout << "Neural Network Successfully Created" << std::endl;
@@ -56,7 +59,9 @@ int main()
     // Initialize Allegro
     if (!al_init() ||
         !al_install_keyboard() ||
-        !al_init_primitives_addon())
+        !al_init_primitives_addon() ||
+        !al_init_font_addon() ||
+        !al_init_ttf_addon())
     {
         std::cerr << "Unable to initialize Allegro" << std::endl;
     }
@@ -110,9 +115,18 @@ int main()
     al_start_timer(main_timer);
 
     // Define an event timer for the physics step
-    ALLEGRO_TIMER* car_step_timer = al_create_timer(1.0 / 100.0);
+    double timer_divide_val = 100.0;
+    ALLEGRO_TIMER* car_step_timer = al_create_timer(1.0 / timer_divide_val);
     al_register_event_source(queue, al_get_timer_event_source(car_step_timer));
     al_start_timer(car_step_timer);
+
+    // Load the font
+    ALLEGRO_FONT* font = al_load_ttf_font("DejaVuSans.ttf", 20, 0);
+    if (font == nullptr)
+    {
+        std::cerr << "Unable to load font!" << std::endl;
+        return 1;
+    }
 
     // Define the Roadtile
     RoadTileManager manager;
@@ -120,20 +134,35 @@ int main()
     // Reset the display buffer
     al_set_target_bitmap(al_get_backbuffer(display));
 
-    // Add go factor
-    double go_factor = 0.0;
-    double turn_val = 0.0;
+    // Current Population Index
+    size_t population_index = 0;
+    size_t current_step = 0;
+    bool update_popoulation = true;
 
-    // Define the sensor number
-    size_t sensor_num = 0;
+    // Define parameter values
+    double max_so_far = 0.0;
+    NeuralNetwork best_so_far = net;
+    bool best_selected = false;
+
+    // Define Status Values
+    double input_forward = 0.0;
+    double input_right = 0.0;
 
     // Define a loop for running
     bool running = true;
+    size_t loop_val = 0;
     while (running)
     {
         // Define the event
         ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
+
+        loop_val = (loop_val + 1) % 1000;
+
+        if (loop_val == 0)
+        {
+            al_flush_event_queue(queue);
+        }
 
         // Switch cast
         switch (event.type)
@@ -148,49 +177,32 @@ int main()
                 running = false;
                 break;
             case ALLEGRO_KEY_UP:
-                go_factor = 1.0;
+                if (timer_divide_val < 10000.0)
+                {
+                    timer_divide_val *= 10.0;
+                    al_set_timer_speed(car_step_timer, 1.0 / timer_divide_val);
+                }
                 break;
             case ALLEGRO_KEY_DOWN:
-                go_factor = -1.0;
-                break;
-            case ALLEGRO_KEY_LEFT:
-                turn_val = -1.0;
-                break;
-            case ALLEGRO_KEY_RIGHT:
-                turn_val = 1.0;
+                if (timer_divide_val > 100.0)
+                {
+                    timer_divide_val /= 10.0;
+                    al_set_timer_speed(car_step_timer, 1.0 / timer_divide_val);
+                }
                 break;
             case ALLEGRO_KEY_HOME:
+                if (best_selected)
+                {
+                    car.reset();
+                }
+                break;
+            case ALLEGRO_KEY_ENTER:
+                best_selected = !best_selected;
                 car.reset();
-                break;
-            case ALLEGRO_KEY_0:
-                sensor_num = 0;
-                break;
-            case ALLEGRO_KEY_1:
-                sensor_num = 1;
-                break;
-            case ALLEGRO_KEY_2:
-                sensor_num = 2;
-                break;
-            case ALLEGRO_KEY_3:
-                sensor_num = 3;
-                break;
-            case ALLEGRO_KEY_4:
-                sensor_num = 4;
+                update_popoulation = true;
                 break;
             }
             break;
-        case ALLEGRO_EVENT_KEY_UP:
-            switch (event.keyboard.keycode)
-            {
-            case ALLEGRO_KEY_UP:
-            case ALLEGRO_KEY_DOWN:
-                go_factor = 0.0;
-                break;
-            case ALLEGRO_KEY_LEFT:
-            case ALLEGRO_KEY_RIGHT:
-                turn_val = 0.0;
-                break;
-            }
         case ALLEGRO_EVENT_TIMER:
             if (event.timer.source == main_timer)
             {
@@ -208,7 +220,7 @@ int main()
                 }
 
                 // Draw the car sensor lines
-                for (size_t i = 0; i < 5; ++i)
+                for (size_t i = 0; i < car.sensor_count(); ++i)
                 {
                     Car::SensorResult s = car.get_sensor(grid, i);
                     al_draw_line(
@@ -230,15 +242,167 @@ int main()
                     car.get_rotation(),
                     0);
 
+                // Define the output string
+                std::ostringstream status_str;
+                status_str << "Generation " << optim.get_generation() << ", Test " << population_index;
+
+                // Draw Text
+                al_draw_text(
+                    font,
+                    al_map_rgb(0, 0, 0),
+                    0,
+                    0,
+                    0,
+                    status_str.str().c_str());
+
+                status_str.str("");
+                status_str.clear();
+                status_str << "Forward: " << std::setprecision(3) << input_forward;
+
+                al_draw_text(
+                    font,
+                    al_map_rgb(0, 0, 0),
+                    0,
+                    20,
+                    0,
+                    status_str.str().c_str());
+
+                status_str.str("");
+                status_str.clear();
+                status_str << "Right: " << std::setprecision(3) << input_right;
+
+                al_draw_text(
+                    font,
+                    al_map_rgb(0, 0, 0),
+                    0,
+                    40,
+                    0,
+                    status_str.str().c_str());
+
+                std::string optim_str = (best_selected) ? "Best Selected" : "Optimizing";
+                al_draw_text(
+                    font,
+                    al_map_rgb(0, 0, 0),
+                    0,
+                    60,
+                    0,
+                    optim_str.c_str());
+
                 // Flip the Display Buffer
                 al_flip_display();
             }
             else if (event.timer.source == car_step_timer)
             {
+                // Update the population
+                NeuralNetwork* selected_net;
+                if (best_selected)
+                {
+                    selected_net = &best_so_far;
+                }
+                else
+                {
+                    selected_net = &net;
+
+                    if (update_popoulation)
+                    {
+                        // Perform the optimization step if necessary
+                        if (population_index >= optim.population_size())
+                        {
+                            optim.update_population();
+                            population_index = 0;
+                        }
+
+                        // Set the gain values to the current population design variables
+                        for (size_t i = 0; i < optim.design_variable_size(); ++i)
+                        {
+                            net.get_links()[i].set_gain(optim.get_population(population_index)[i]);
+                        }
+
+                        // Reset State
+                        update_popoulation = false;
+                        current_step = 0;
+                        car.reset();
+                    }
+                }
+
+                // Set the event values
+                for (size_t i = 0; i < car.sensor_count(); ++i)
+                {
+                    selected_net->set_input(i, car.get_sensor(grid, i).dist);
+                }
+
+                // Step the net
+                if (!selected_net->step())
+                {
+                    throw std::exception("unable to step network");
+                }
+
+                // Set the outputs
+                input_forward = 0.0;
+                input_right = 0.0;
+
+                for (size_t i = 0; i < 2; ++i)
+                {
+                    double val;
+                    if (selected_net->get_output(0 + i, val) && val > 0.5)
+                    {
+                        if (val > 0.5)
+                        {
+                            input_forward += 0.5;
+                        }
+                        else if (val < -0.5)
+                        {
+                            input_forward -= 0.5;
+                        }
+                    }
+                }
+
+                for (size_t i = 0; i < 2; ++i)
+                {
+                    double val;
+                    if (selected_net->get_output(2 + i, val))
+                    {
+                        if (val > 0.5)
+                        {
+                            input_right += 0.5;
+                        }
+                        else if (val < 0.5)
+                        {
+                            input_right -= 0.5;
+                        }
+                    }
+                }
+
                 // Step the car
-                car.step(go_factor, turn_val);
+                car.step(input_forward, input_right);
                 car.check_collision(grid);
-                std::cout << "D: " << car.get_distance() << std::endl;
+
+                const bool is_stuck = std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_vel()) < 1e-6;
+
+                current_step += 1;
+
+                if (best_selected)
+                {
+                    if (car.has_collided())
+                    {
+                        //car.reset();
+                    }
+                }
+                else
+                {
+                    if (car.has_collided() || current_step > 30 * 100 || is_stuck)
+                    {
+                        if (car.get_distance() > max_so_far)
+                        {
+                            std::cout << "D: " << car.get_distance() << std::endl;
+                            max_so_far = car.get_distance();
+                            best_so_far = net;
+                        }
+                        optim.set_result(population_index, car.get_distance());
+                        population_index += 1;
+                        update_popoulation = true;
+                    }
+                }
             }
             break;
         }
@@ -249,12 +413,14 @@ int main()
     al_destroy_event_queue(queue);
     al_destroy_timer(main_timer);
     al_destroy_timer(car_step_timer);
+    al_destroy_font(font);
 
     // Reset Pointers
     display = nullptr;
     queue = nullptr;
     main_timer = nullptr;
     car_step_timer = nullptr;
+    font = nullptr;
 
     // Return Success
     return 0;

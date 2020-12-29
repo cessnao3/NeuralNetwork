@@ -64,6 +64,16 @@ public:
 
     SensorResult get_sensor(const RoadGrid& grid, const size_t sensor_num) const;
 
+    size_t sensor_count() const
+    {
+        return 7;
+    }
+
+    double get_forward_vel() const
+    {
+        return input_forward_prev;
+    }
+
     ~Car();
 
 protected:
