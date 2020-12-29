@@ -9,14 +9,6 @@ NeuralNode::NeuralNode(const size_t node_id) :
     // Empty Constructor
 }
 
-void NeuralNode::add_link_id(const size_t link_id)
-{
-    if (std::find(link_ids.begin(), link_ids.end(), link_id) != link_ids.end())
-    {
-        link_ids.push_back(link_id);
-    }
-}
-
 double NeuralNode::get_value() const
 {
     return value;

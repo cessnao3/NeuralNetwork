@@ -64,20 +64,14 @@ public:
 
     SensorResult get_sensor(const RoadGrid& grid, const size_t sensor_num) const;
 
-    size_t sensor_count() const
-    {
-        return 7;
-    }
+    size_t sensor_count() const;
 
-    double get_forward_vel() const
-    {
-        return input_forward_prev;
-    }
+    double get_forward_vel() const;
 
     ~Car();
 
 protected:
-    SensorResult calc_sensor_dist(const RoadGrid& grid, const double dlon, const double dlat) const;
+    SensorResult calc_sensor_dist(const RoadGrid& grid, const double dlon, const double dlat, const bool is_front) const;
 
     double constrain_input(const double val);
 

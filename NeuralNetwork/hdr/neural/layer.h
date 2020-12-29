@@ -2,6 +2,7 @@
 #define __IO_NEURAL_LAYER__
 
 #include <vector>
+#include <string>
 
 /// <summary>
 /// Defines a Neural Network layer

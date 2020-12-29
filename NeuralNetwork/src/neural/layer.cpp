@@ -1,6 +1,7 @@
 #include "neural/layer.h"
 
 #include <algorithm>
+#include <sstream>
 
 static bool add_if_contains(std::vector<size_t>& vec, const size_t val)
 {

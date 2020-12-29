@@ -3,6 +3,7 @@
 #include <allegro5/allegro_primitives.h>
 
 #include <stdexcept>
+#include <cmath>
 
 const double Car::PI = 3.14159265358979323846;
 
@@ -294,46 +295,61 @@ Car::SensorResult Car::get_sensor(const RoadGrid& grid, const size_t sensor_num)
     switch (sensor_num)
     {
     case 0:
-        return calc_sensor_dist(grid, 1, 0);
+        return calc_sensor_dist(grid, 1, 0, true);
     case 1:
-        return calc_sensor_dist(grid, 1, 1);
+        return calc_sensor_dist(grid, 1, 1, true);
     case 2:
-        return calc_sensor_dist(grid, 1, -1);
+        return calc_sensor_dist(grid, 1, -1, true);
     case 3:
-        return calc_sensor_dist(grid, 0, 1);
+        return calc_sensor_dist(grid, 0, 1, true);
     case 4:
-        return calc_sensor_dist(grid, 0, -1);
+        return calc_sensor_dist(grid, 0, -1, true);
     case 5:
-        return calc_sensor_dist(grid, 2, 1);
+        return calc_sensor_dist(grid, 2, 1, true);
     case 6:
-        return calc_sensor_dist(grid, 2, -1);
+        return calc_sensor_dist(grid, 2, -1, true);
+    case 7:
+        return calc_sensor_dist(grid, 0, 1, false);
+    case 8:
+        return calc_sensor_dist(grid, 0, -1, false);
     default:
         throw std::range_error("invalid sensor number provided to car");
     }
 }
 
-Car::SensorResult Car::calc_sensor_dist(const RoadGrid& grid, const double dlon, const double dlat) const
+size_t Car::sensor_count() const
+{
+    return 7;
+}
+
+double Car::get_forward_vel() const
+{
+    return input_forward_prev;
+}
+
+Car::SensorResult Car::calc_sensor_dist(const RoadGrid& grid, const double dlon, const double dlat, const bool is_front) const
 {
     // Find the front of the car
-    const double front_x = x + rot_vec_lon(get_width() / 2.0, 0);
-    const double front_y = y + rot_vec_lat(get_width() / 2.0, 0);
+    const double front_sign = is_front ? 1.0 : -1.0;
+    const double origin_x = x + rot_vec_lon(get_width() / 2.0 * front_sign, 0);
+    const double origin_y = y + rot_vec_lat(get_width() / 2.0 * front_sign, 0);
 
-    // Find the point out the front of the car
+    // Find the vector/slope to find the point out the front of the car
     const double dmag = std::sqrt(dlon * dlon + dlat * dlat);
     const double dlon_rot = rot_vec_lon(dlon, dlat) / dmag;
     const double dlat_rot = rot_vec_lat(dlon, dlat) / dmag;
 
     // Determine the increment to use in searching
-    const double incr = 0.1;
+    const double incr = 2;
 
-    double xval = front_x;
-    double yval = front_y;
+    double xval = origin_x;
+    double yval = origin_y;
 
     double current_dist = 0.0;
     while (current_dist < std::pow(std::max(grid.get_width(), grid.get_height()) * RoadTile::TILE_SIZE, 2))
     {
-        xval = front_x + dlon_rot * current_dist;
-        yval = front_y + dlat_rot * current_dist;
+        xval = origin_x + dlon_rot * current_dist;
+        yval = origin_y + dlat_rot * current_dist;
 
         const RoadGrid::GridLoc* loc = grid.get_for_xy(xval, yval);
         if (loc == nullptr)
@@ -348,12 +364,14 @@ Car::SensorResult Car::calc_sensor_dist(const RoadGrid& grid, const double dlon,
         current_dist += incr;
     }
 
+    const double sensor_max = 50.0;
+
     SensorResult s;
-    s.start_x = front_x;
-    s.start_y = front_y;
+    s.start_x = origin_x;
+    s.start_y = origin_y;
     s.impact_x = xval;
     s.impact_y = yval;
-    s.dist = current_dist;
+    s.dist = std::max(0.0, std::min(sensor_max, current_dist));
 
     return s;
 }

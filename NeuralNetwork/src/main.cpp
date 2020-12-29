@@ -26,8 +26,13 @@ int main()
     // Define the Neural Network
     NeuralNetwork net;
 
+    // Define the car
+    Car car;
+    const size_t num_forward_outputs = 10;
+    const size_t num_turn_outputs = 10;
+
     // Define the layer sizes
-    std::vector<size_t> layer_sizes = { 7, 21, 4 };
+    std::vector<size_t> layer_sizes = { car.sensor_count(), 3 * car.sensor_count(), num_forward_outputs + num_turn_outputs };
 
     // Create the layer
     try
@@ -41,7 +46,7 @@ int main()
     }
 
     // Define the genetic algorithm
-    GeneticOptim optim(25, net.get_links().size());
+    GeneticOptim optim(50, net.get_links().size());
     optim.init_population();
 
     // Define Success
@@ -91,7 +96,6 @@ int main()
     grid.set_start_ind(2, 0);
 
     // Define the car
-    Car car;
     car.init_bitmap();
 
     RoadGrid::GridLoc* start_pos = grid.at(grid.get_start_ind());
@@ -140,7 +144,7 @@ int main()
     bool update_popoulation = true;
 
     // Define parameter values
-    double max_so_far = 0.0;
+    double best_distance_so_far = 0.0;
     NeuralNetwork best_so_far = net;
     bool best_selected = false;
 
@@ -177,7 +181,7 @@ int main()
                 running = false;
                 break;
             case ALLEGRO_KEY_UP:
-                if (timer_divide_val < 10000.0)
+                if (timer_divide_val < 100000.0)
                 {
                     timer_divide_val *= 10.0;
                     al_set_timer_speed(car_step_timer, 1.0 / timer_divide_val);
@@ -250,7 +254,7 @@ int main()
                 al_draw_text(
                     font,
                     al_map_rgb(0, 0, 0),
-                    0,
+                    10,
                     0,
                     0,
                     status_str.str().c_str());
@@ -262,7 +266,7 @@ int main()
                 al_draw_text(
                     font,
                     al_map_rgb(0, 0, 0),
-                    0,
+                    10,
                     20,
                     0,
                     status_str.str().c_str());
@@ -274,7 +278,7 @@ int main()
                 al_draw_text(
                     font,
                     al_map_rgb(0, 0, 0),
-                    0,
+                    10,
                     40,
                     0,
                     status_str.str().c_str());
@@ -283,10 +287,31 @@ int main()
                 al_draw_text(
                     font,
                     al_map_rgb(0, 0, 0),
-                    0,
+                    10,
                     60,
                     0,
                     optim_str.c_str());
+
+                status_str.str("");
+                status_str.clear();
+                status_str << "Distance: ";
+
+                if (best_selected)
+                {
+                    status_str << std::setprecision(3) << car.get_distance();
+                }
+                else
+                {
+                    status_str << std::setprecision(3) << best_distance_so_far;
+                }
+
+                al_draw_text(
+                    font,
+                    al_map_rgb(0, 0, 0),
+                    10,
+                    80,
+                    0,
+                    status_str.str().c_str());
 
                 // Flip the Display Buffer
                 al_flip_display();
@@ -341,34 +366,38 @@ int main()
                 input_forward = 0.0;
                 input_right = 0.0;
 
-                for (size_t i = 0; i < 2; ++i)
+                for (size_t i = 0; i < num_forward_outputs; ++i)
                 {
                     double val;
+                    const double add_val = 1.0 / num_forward_outputs;
+                    const double thresh = 0.5;
                     if (selected_net->get_output(0 + i, val) && val > 0.5)
                     {
-                        if (val > 0.5)
+                        if (val > thresh)
                         {
-                            input_forward += 0.5;
+                            input_forward += add_val;
                         }
-                        else if (val < -0.5)
+                        else if (val < -thresh)
                         {
-                            input_forward -= 0.5;
+                            input_forward -= add_val;
                         }
                     }
                 }
 
-                for (size_t i = 0; i < 2; ++i)
+                for (size_t i = 0; i < num_turn_outputs; ++i)
                 {
                     double val;
-                    if (selected_net->get_output(2 + i, val))
+                    const double add_val = 1.0 / num_turn_outputs;
+                    const double thresh = 0.5;
+                    if (selected_net->get_output(num_forward_outputs + i, val))
                     {
-                        if (val > 0.5)
+                        if (val > thresh)
                         {
-                            input_right += 0.5;
+                            input_right += add_val;
                         }
-                        else if (val < 0.5)
+                        else if (val < thresh)
                         {
-                            input_right -= 0.5;
+                            input_right -= add_val;
                         }
                     }
                 }
@@ -390,12 +419,12 @@ int main()
                 }
                 else
                 {
-                    if (car.has_collided() || current_step > 30 * 100 || is_stuck)
+                    if (car.has_collided() || current_step > 300 * 100 || is_stuck)
                     {
-                        if (car.get_distance() > max_so_far)
+                        if (car.get_distance() > best_distance_so_far)
                         {
                             std::cout << "D: " << car.get_distance() << std::endl;
-                            max_so_far = car.get_distance();
+                            best_distance_so_far = car.get_distance();
                             best_so_far = net;
                         }
                         optim.set_result(population_index, car.get_distance());
