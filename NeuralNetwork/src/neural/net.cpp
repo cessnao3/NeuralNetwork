@@ -265,3 +265,170 @@ std::string NeuralNetwork::get_status() const
     // Return the resulting string
     return ss.str();
 }
+
+std::string NeuralNetwork::get_config() const
+{
+    // Define the output string
+    std::ostringstream output;
+    
+    // Write the number of nodes
+    output << nodes.size() << std::endl;
+
+    // Write the number of links, and then the status value for each link
+    output << links.size() << std::endl;
+    for (size_t i = 0; i < links.size(); ++i)
+    {
+        const NeuralLink& l = links[i];
+        output << l.from_node_id() << ">" << l.to_node_id() << "=" << l.get_gain() << std::endl;
+    }
+
+    // Write the number of layers
+    output << layers.size() << std::endl;
+    for (size_t i = 0; i < layers.size(); ++i)
+    {
+        const NeuralLayer& l = layers[i];
+        output << l.node_ids.size() << std::endl;
+        for (size_t j = 0; j < l.node_ids.size(); ++j)
+        {
+            output << l.node_ids[j] << std::endl;
+        }
+        output << l.link_ids.size() << std::endl;
+        for (size_t j = 0; j < l.link_ids.size(); ++j)
+        {
+            output << l.link_ids[j] << std::endl;
+        }
+    }
+
+    output << 8080 << std::endl;
+
+    // Return combined values
+    return output.str();
+}
+
+#include <iostream>
+
+NeuralNetwork NeuralNetwork::from_config(const std::string& config)
+{
+    // Define the input reader
+    std::istringstream input(config);
+    NeuralNetwork net;
+
+    // Number of nodes
+    size_t num_nodes;
+    input >> num_nodes;
+
+    if (!input || num_nodes == 0)
+    {
+        throw std::invalid_argument("cannot provide zero nodes as input to network");
+    }
+
+    for (size_t i = 0; i < num_nodes; ++i)
+    {
+        net.nodes.push_back(NeuralNode(i));
+    }
+
+    // Read in the links
+    size_t num_links;
+    input >> num_links;
+
+    if (!input || num_links == 0)
+    {
+        throw std::invalid_argument("cannot provide zero links as input to network");
+    }
+
+    for (size_t i = 0; i < num_links; ++i)
+    {
+        std::string link_str;
+        input >> link_str;
+
+        auto c1 = std::find(link_str.begin(), link_str.end(), '>');
+        auto c2 = std::find(link_str.begin(), link_str.end(), '=');
+
+        if (c1 == link_str.end() || c2 == link_str.end())
+        {
+            throw std::invalid_argument("unable to find either > or = delimiter in link string " + link_str);
+        }
+
+        const std::string from_id_str = link_str.substr(0, c1 - link_str.begin());
+        const std::string to_id_str = link_str.substr(c1 + 1 - link_str.begin(), c2 - c1 - 1);
+        const std::string gain_str = link_str.substr(c2 + 1 - link_str.begin());
+
+        const size_t from_id = std::stol(from_id_str);
+        const size_t to_id = std::stol(to_id_str);
+        const double gain = std::stod(gain_str);
+
+        net.links.push_back(NeuralLink(net.links.size(), from_id, to_id, gain));
+    }
+
+    // Read in the layers
+    size_t num_layers;
+    input >> num_layers;
+
+    if (!input || num_layers == 0)
+    {
+        throw std::invalid_argument("cannot provide zero layers as input to network");
+    }
+
+    for (size_t i = 0; i < num_layers; ++i)
+    {
+        NeuralLayer layer;
+
+        {
+            size_t num_node_vals;
+            input >> num_node_vals;
+
+            if (!input || num_node_vals == 0)
+            {
+                throw std::invalid_argument("network configuration layer must have valid node size");
+            }
+
+            for (size_t j = 0; j < num_node_vals; ++j)
+            {
+                size_t nid;
+                input >> nid;
+
+                const bool add_result = layer.add_node(nid);
+
+                if (!input || !add_result)
+                {
+                    throw std::invalid_argument("unable to read network configuration layer node ID value");
+                }
+            }
+        }
+
+        {
+            size_t num_link_vals = 0;
+            input >> num_link_vals;
+
+            if (!input || (net.layers.size() > 0 && num_link_vals == 0) || (net.layers.size() == 0 && num_link_vals != 0))
+            {
+                throw std::invalid_argument("network congiraution layer must have valid link size");
+            }
+
+            for (size_t j = 0; j < num_link_vals; ++j)
+            {
+                size_t lid;
+                input >> lid;
+
+                if (!input || !layer.add_link(lid))
+                {
+                    throw std::invalid_argument("unable to read network configuration layer link ID value");
+                }
+            }
+        }
+
+        net.layers.push_back(layer);
+    }
+
+    // Check that the ending value is 0
+    size_t end_val = 10;
+    input >> end_val;
+
+    if (!input || end_val != 8080)
+    {
+        throw std::invalid_argument("configuration end value is incorrect");
+    }
+
+    // Return the network
+    return net;
+}

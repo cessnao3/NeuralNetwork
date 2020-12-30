@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-static bool add_if_contains(std::vector<size_t>& vec, const size_t val)
+static bool add_if_not_contains(std::vector<size_t>& vec, const size_t val)
 {
     if (std::find(vec.begin(), vec.end(), val) == vec.end())
     {
@@ -18,10 +18,10 @@ static bool add_if_contains(std::vector<size_t>& vec, const size_t val)
 
 bool NeuralLayer::add_node(size_t node_id)
 {
-    return add_if_contains(node_ids, node_id);
+    return add_if_not_contains(node_ids, node_id);
 }
 
 bool NeuralLayer::add_link(size_t link_id)
 {
-    return add_if_contains(link_ids, link_id);
+    return add_if_not_contains(link_ids, link_id);
 }

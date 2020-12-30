@@ -19,6 +19,8 @@
 #include <sstream>
 #include <string>
 
+#include <fstream>
+
 #include <iomanip>
 
 int main()
@@ -48,18 +50,6 @@ int main()
     // Define the genetic algorithm
     GeneticOptim optim(50, net.get_links().size());
     optim.init_population();
-
-    // Define Success
-    std::cout << "Neural Network Successfully Created" << std::endl;
-
-    // Define an initial output
-    std::cout << "Step 0" << std::endl << net.get_status() << std::endl;
-
-    // Step
-    net.step();
-
-    // Print Output
-    std::cout << "Step 1" << std::endl << net.get_status() << std::endl;
 
     // Initialize Allegro
     if (!al_init() ||
@@ -114,7 +104,7 @@ int main()
     al_register_event_source(queue, al_get_display_event_source(display));
 
     // Define an event timer for loop
-    ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 30.0);
+    ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 60.0);
     al_register_event_source(queue, al_get_timer_event_source(main_timer));
     al_start_timer(main_timer);
 
@@ -141,12 +131,45 @@ int main()
     // Current Population Index
     size_t population_index = 0;
     size_t current_step = 0;
-    bool update_popoulation = true;
+    bool update_population = true;
 
     // Define parameter values
     double best_distance_so_far = 0.0;
     NeuralNetwork best_so_far = net;
     bool best_selected = false;
+    size_t best_count = 0;
+
+    // Define the file net
+    NeuralNetwork file_net;
+    bool file_net_read = false;
+    bool use_file_value = false;
+    const std::string output_fname = "default.txt";
+
+    try
+    {
+        std::ifstream input_vals(output_fname);
+        std::ostringstream config;
+        std::string l;
+        while (std::getline(input_vals, l))
+        {
+            config << l << std::endl;
+        }
+
+        file_net = NeuralNetwork::from_config(config.str());
+
+        file_net_read = true;
+    }
+    catch (const std::invalid_argument& err)
+    {
+        file_net_read = false;
+        std::cerr << "Unable to read input file: " << err.what() << std::endl;
+    }
+
+    if (file_net_read)
+    {
+        use_file_value = true;
+        best_selected = true;
+    }
 
     // Define Status Values
     double input_forward = 0.0;
@@ -203,8 +226,15 @@ int main()
             case ALLEGRO_KEY_ENTER:
                 best_selected = !best_selected;
                 car.reset();
-                update_popoulation = true;
+                update_population = true;
                 break;
+            case ALLEGRO_KEY_F:
+                if (best_selected && file_net_read)
+                {
+                    use_file_value = !use_file_value;
+                    car.reset();
+                    update_population = true;
+                }
             }
             break;
         case ALLEGRO_EVENT_TIMER:
@@ -283,7 +313,7 @@ int main()
                     0,
                     status_str.str().c_str());
 
-                std::string optim_str = (best_selected) ? "Best Selected" : "Optimizing";
+                std::string optim_str = (best_selected) ? (use_file_value ? "File" : "Best Selected") : "Optimizing";
                 al_draw_text(
                     font,
                     al_map_rgb(0, 0, 0),
@@ -322,13 +352,20 @@ int main()
                 NeuralNetwork* selected_net;
                 if (best_selected)
                 {
-                    selected_net = &best_so_far;
+                    if (use_file_value)
+                    {
+                        selected_net = &file_net;
+                    }
+                    else
+                    {
+                        selected_net = &best_so_far;
+                    }
                 }
                 else
                 {
                     selected_net = &net;
 
-                    if (update_popoulation)
+                    if (update_population)
                     {
                         // Perform the optimization step if necessary
                         if (population_index >= optim.population_size())
@@ -338,13 +375,14 @@ int main()
                         }
 
                         // Set the gain values to the current population design variables
+                        const std::vector<double>& current_desvars = optim.get_population(population_index);
                         for (size_t i = 0; i < optim.design_variable_size(); ++i)
                         {
-                            net.get_links()[i].set_gain(optim.get_population(population_index)[i]);
+                            net.get_links()[i].set_gain(current_desvars[i]);
                         }
 
                         // Reset State
-                        update_popoulation = false;
+                        update_population = false;
                         current_step = 0;
                         car.reset();
                     }
@@ -426,10 +464,31 @@ int main()
                             std::cout << "D: " << car.get_distance() << std::endl;
                             best_distance_so_far = car.get_distance();
                             best_so_far = net;
+
+                            // Save the best-so-far network
+
+                            std::ostringstream fname;
+                            fname << output_fname << "." << best_count;
+
+                            std::ofstream output(fname.str());
+                            if (output.is_open())
+                            {
+                                std::cout << "  Wrote network config " << fname.str() << std::endl;
+                                output << best_so_far.get_config();
+                                output.close();
+                            }
+                            else
+                            {
+
+                                std::cerr << "Error opening file " << fname.str() << " for writing" << std::endl;
+                            }
+
+                            best_count += 1;
+
                         }
                         optim.set_result(population_index, car.get_distance());
                         population_index += 1;
-                        update_popoulation = true;
+                        update_population = true;
                     }
                 }
             }

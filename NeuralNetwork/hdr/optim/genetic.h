@@ -119,7 +119,7 @@ public:
         for (size_t i = 0; i < population.size(); ++i)
         {
             const double w1 = 0.75;
-            const double w2 = 0.25;
+            const double w2 = 1.0 - w1;
 
             const double ind1 = combination_group[2 * i];
             const double ind2 = combination_group[2 * i + 1];

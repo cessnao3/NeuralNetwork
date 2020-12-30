@@ -93,6 +93,20 @@ public:
     /// <returns>a status string for the inputs and outputs</returns>
     std::string get_status() const;
 
+    /// <summary>
+    /// Provides the string representation of the current network
+    /// </summary>
+    /// <returns>string configuration representation</returns>
+    std::string get_config() const;
+
+    /// <summary>
+    /// Provides a neural network from the given neural network configuration string
+    /// Will throw an exception if the network is unable to be created
+    /// </summary>
+    /// <param name="config">the configuration string</param>
+    /// <returns>the network associated with the given configuration</returns>
+    static NeuralNetwork from_config(const std::string& config);
+
 private:
     /// <summary>
     /// The neural network layers, to be evaluated from
