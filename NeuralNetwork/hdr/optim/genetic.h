@@ -169,10 +169,12 @@ protected:
     std::uniform_real_distribution<double> distribution;
     std::uniform_int_distribution<size_t> index_distribution;
 
-    const size_t num_des_var;
+    // Make Static
+    size_t num_des_var;
 
-    const double lower_bound = -1;
-    const double upper_bound = 1;
+    // Make Static/Constant
+    double lower_bound = -1;
+    double upper_bound = 1;
 
     size_t generation;
 };

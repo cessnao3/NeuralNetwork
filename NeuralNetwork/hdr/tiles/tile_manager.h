@@ -30,6 +30,8 @@ public:
 
     size_t num_tiles() const;
 
+    void init_bitmaps();
+
 private:
     std::unordered_map<RoadTileType, RoadTile*> tiles;
 

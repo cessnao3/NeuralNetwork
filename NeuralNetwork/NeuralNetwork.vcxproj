@@ -178,6 +178,8 @@
     <ClInclude Include="hdr\neural\neural_exception.h" />
     <ClInclude Include="hdr\neural\node.h" />
     <ClInclude Include="hdr\optim\genetic.h" />
+    <ClInclude Include="hdr\states\game_state.h" />
+    <ClInclude Include="hdr\states\optim_state.h" />
     <ClInclude Include="hdr\tiles\road_tile.h" />
     <ClInclude Include="hdr\tiles\road_tile_corner.h" />
     <ClInclude Include="hdr\tiles\road_tile_grass.h" />

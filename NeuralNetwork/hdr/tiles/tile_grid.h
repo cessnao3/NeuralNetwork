@@ -35,6 +35,8 @@ public:
 public:
     RoadGrid(size_t width, size_t height);
 
+    void init_bitmaps();
+
     void reset_tile_pointers();
 
     GridLoc* at(const size_t row, const size_t col);

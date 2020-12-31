@@ -22,7 +22,10 @@ RoadTileManager::RoadTileManager()
     tiles[RoadTileType::STRAIGHT_V] = &tiles_straight[0];
     tiles[RoadTileType::STRAIGHT_H] = &tiles_straight[1];
     tiles[RoadTileType::GRASS] = &tile_grass;
+}
 
+void RoadTileManager::init_bitmaps()
+{
     // Iterate over key-value pairs
     for (auto kv = tiles.begin(); kv != tiles.end(); ++kv)
     {

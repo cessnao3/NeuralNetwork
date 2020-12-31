@@ -73,7 +73,7 @@ void Car::init_bitmap()
         taillight_color);
 }
 
-ALLEGRO_BITMAP* Car::get_bitmap()
+ALLEGRO_BITMAP* Car::get_bitmap() const
 {
     return bitmap;
 }
@@ -171,7 +171,7 @@ double Car::get_car_y() const
     return y;
 }
 
-void Car::check_collision(const RoadGrid& grid)
+void Car::check_collision(const RoadGrid& tile_grid)
 {
     // Define the number of corners
     const size_t num_corners = 4;
@@ -201,7 +201,7 @@ void Car::check_collision(const RoadGrid& grid)
         const double corner_y = y + rot_vec_lat(corner_lon[i], corner_lat[i]);
 
         // Extract the current tile, and check that it is valid
-        const RoadGrid::GridLoc* t = grid.get_for_xy(corner_x, corner_y);
+        const RoadGrid::GridLoc* t = tile_grid.get_for_xy(corner_x, corner_y);
 
         if (t == nullptr)
         {
@@ -289,29 +289,29 @@ double Car::rot_vec_lat(const double lon, const double lat) const
     return lon * std::sin(rotation) + lat * std::cos(rotation);
 }
 
-Car::SensorResult Car::get_sensor(const RoadGrid& grid, const size_t sensor_num) const
+Car::SensorResult Car::get_sensor(const RoadGrid& tile_grid, const size_t sensor_num) const
 {
     // Define car sensor values
     switch (sensor_num)
     {
     case 0:
-        return calc_sensor_dist(grid, 1, 0, true);
+        return calc_sensor_dist(tile_grid, 1, 0, true);
     case 1:
-        return calc_sensor_dist(grid, 1, 1, true);
+        return calc_sensor_dist(tile_grid, 1, 1, true);
     case 2:
-        return calc_sensor_dist(grid, 1, -1, true);
+        return calc_sensor_dist(tile_grid, 1, -1, true);
     case 3:
-        return calc_sensor_dist(grid, 0, 1, true);
+        return calc_sensor_dist(tile_grid, 0, 1, true);
     case 4:
-        return calc_sensor_dist(grid, 0, -1, true);
+        return calc_sensor_dist(tile_grid, 0, -1, true);
     case 5:
-        return calc_sensor_dist(grid, 2, 1, true);
+        return calc_sensor_dist(tile_grid, 2, 1, true);
     case 6:
-        return calc_sensor_dist(grid, 2, -1, true);
+        return calc_sensor_dist(tile_grid, 2, -1, true);
     case 7:
-        return calc_sensor_dist(grid, 0, 1, false);
+        return calc_sensor_dist(tile_grid, 0, 1, false);
     case 8:
-        return calc_sensor_dist(grid, 0, -1, false);
+        return calc_sensor_dist(tile_grid, 0, -1, false);
     default:
         throw std::range_error("invalid sensor number provided to car");
     }
@@ -327,7 +327,7 @@ double Car::get_forward_vel() const
     return input_forward_prev;
 }
 
-Car::SensorResult Car::calc_sensor_dist(const RoadGrid& grid, const double dlon, const double dlat, const bool is_front) const
+Car::SensorResult Car::calc_sensor_dist(const RoadGrid& tile_grid, const double dlon, const double dlat, const bool is_front) const
 {
     // Find the front of the car
     const double front_sign = is_front ? 1.0 : -1.0;
@@ -345,13 +345,55 @@ Car::SensorResult Car::calc_sensor_dist(const RoadGrid& grid, const double dlon,
     double xval = origin_x;
     double yval = origin_y;
 
+    const double sensor_max = 50.0;
+
+    /*
+    double lb = 0.0;
+    double ub = sensor_max;
     double current_dist = 0.0;
-    while (current_dist < std::pow(std::max(grid.get_width(), grid.get_height()) * RoadTile::TILE_SIZE, 2))
+
+    bool found = false;
+    while (!found)
+    {
+        const double diff = ub - lb;
+        const double curr = (ub - lb) * 0.5 + lb;
+        if (diff < 2.0)
+        {
+            found = true;
+            current_dist = diff * 0.5;
+        }
+        else
+        {
+            xval = origin_x + dlon_rot * curr;
+            yval = origin_y + dlat_rot * curr;
+
+            const RoadGrid::GridLoc* loc = grid.get_for_xy(xval, yval);
+
+            if (loc == nullptr)
+            {
+                ub = curr;
+            }
+            else if (!loc->tile->point_on_road(xval - loc->x, yval - loc->y))
+            {
+                ub = curr;
+            }
+            else
+            {
+                lb = curr;
+            }
+        }
+
+    }
+    */
+
+    double current_dist = 0.0;
+    //while (current_dist < std::pow(std::max(grid.get_width(), grid.get_height()) * RoadTile::TILE_SIZE, 2))
+    while (current_dist < sensor_max)
     {
         xval = origin_x + dlon_rot * current_dist;
         yval = origin_y + dlat_rot * current_dist;
 
-        const RoadGrid::GridLoc* loc = grid.get_for_xy(xval, yval);
+        const RoadGrid::GridLoc* loc = tile_grid.get_for_xy(xval, yval);
         if (loc == nullptr)
         {
             break;
@@ -364,14 +406,13 @@ Car::SensorResult Car::calc_sensor_dist(const RoadGrid& grid, const double dlon,
         current_dist += incr;
     }
 
-    const double sensor_max = 50.0;
-
     SensorResult s;
     s.start_x = origin_x;
     s.start_y = origin_y;
     s.impact_x = xval;
     s.impact_y = yval;
-    s.dist = std::max(0.0, std::min(sensor_max, current_dist));
+    //s.dist = std::max(0.0, std::min(sensor_max, current_dist));
+    s.dist = current_dist;
 
     return s;
 }

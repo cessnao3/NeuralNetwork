@@ -36,7 +36,7 @@ public:
 
     void init_bitmap();
 
-    ALLEGRO_BITMAP* get_bitmap();
+    ALLEGRO_BITMAP* get_bitmap() const;
 
     void set_rotation(const double rot_val);
 
