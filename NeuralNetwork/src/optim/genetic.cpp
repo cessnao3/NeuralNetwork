@@ -119,25 +119,36 @@ void GeneticOptim::update_design()
     // Perform the sample combinations
     for (size_t i = 0; i < designs.size(); ++i)
     {
+        // Define weights
         const double w1 = 0.75;
         const double w2 = 1.0 - w1;
 
+        // Define the two value indices
         const size_t ind1 = combination_group[2 * i];
         const size_t ind2 = combination_group[2 * i + 1];
 
+        // Extract the two designs
         const OptimStatus& o1 = designs[ind1];
         const OptimStatus& o2 = designs[ind2];
 
+        // Determine the min and max value
         const OptimStatus& val_max = (o1.fitness > o2.fitness) ? o1 : o2;
         const OptimStatus& val_min = (o1.fitness > o2.fitness) ? o2 : o1;
 
+        // Obtain the child to set into the new population result
         OptimStatus& child = new_population[i];
 
+        // Update each design variable
         for (size_t j = 0; j < designs[i].design_variables.size(); ++j)
         {
+            // Extract and update the design variable
             double& desvar = child.design_variables[j];
             desvar = w1 * val_max.design_variables[j] + w2 * val_min.design_variables[j];
+
+            // Provide some mutation into the design variable
             desvar += get_random() * 0.1;
+
+            // Limit the design variable to the upper and lower bounds
             desvar = std::min(upper_bound, std::max(lower_bound, desvar));
         }
     }

@@ -115,13 +115,13 @@ public:
     /// Gets the car width
     /// </summary>
     /// <returns>the car width, in pixels</returns>
-    double get_width() const;
+    double get_length() const;
 
     /// <summary>
     /// Gets the car height
     /// </summary>
     /// <returns>the car height, in pixels</returns>
-    double get_height() const;
+    double get_width() const;
 
     /// <summary>
     /// Determines if the car has collided with something

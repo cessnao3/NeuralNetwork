@@ -32,7 +32,7 @@ public:
     /// </summary>
     /// <param name="distance">the distance traveled</param>
     /// <returns>true if the best design has been updated</returns>
-    bool check_update_best_design(const double distance);
+    bool check_update_best_design(const double distance, const double avg_speed);
 
     /// <summary>
     /// Steps to the next network, updating the optimization design variables as necessary

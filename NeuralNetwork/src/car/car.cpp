@@ -45,32 +45,32 @@ void Car::init_bitmap()
     ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
 
     // Create a new bitmap and target to draw
-    bitmap = al_create_bitmap(get_width(), get_height());
+    bitmap = al_create_bitmap(get_length(), get_width());
     al_set_target_bitmap(bitmap);
 
     // Clear the bitmap
     al_clear_to_color(al_map_rgb(0, 0, 255));
 
     // Add lights
-    const uint32_t light_depth = 5;
-    const uint32_t light_width = 10;
+    const uint32_t light_depth = 0.125 * get_length();
+    const uint32_t light_width = 0.25 * get_width();
 
     const ALLEGRO_COLOR headlight_color = al_map_rgb(255, 255, 255);
     const ALLEGRO_COLOR taillight_color = al_map_rgb(255, 0, 0);
 
     // Draw Headlights
     al_draw_filled_rectangle(
-        get_width() - light_depth,
+        get_length() - light_depth,
         0,
-        get_width(),
+        get_length(),
         light_width,
         headlight_color);
 
     al_draw_filled_rectangle(
-        get_width() - light_depth,
-        get_height() - light_width,
+        get_length() - light_depth,
+        get_width() - light_width,
+        get_length(),
         get_width(),
-        get_height(),
         headlight_color);
 
     // Draw Taillights
@@ -82,9 +82,9 @@ void Car::init_bitmap()
         taillight_color);
     al_draw_filled_rectangle(
         0,
-        get_height() - light_width,
+        get_width() - light_width,
         light_depth,
-        get_height(),
+        get_width(),
         taillight_color);
 
     // Reset the bitmap target
@@ -138,7 +138,7 @@ void Car::step_movement(const RoadGrid& grid, const double forward, const double
 
         // Set the forward and turn increments
         const double fwd_incr = 0.005 * ((input_same_sign) ? 1 : 10);
-        const double trn_incr = 0.075;
+        const double trn_incr = 0.085;
 
         // Filter the forward values
         const double fwd_val = step_filter(
@@ -207,18 +207,18 @@ void Car::check_collision(const RoadGrid& tile_grid)
     // Define the corner positions
     const double corner_lon[num_corners] =
     {
-        get_width() / 2.0,
-        get_width() / 2.0,
-        -get_width() / 2.0,
-        -get_width() / 2.0
+        get_length() / 2.0,
+        get_length() / 2.0,
+        -get_length() / 2.0,
+        -get_length() / 2.0
     };
 
     const double corner_lat[num_corners] =
     {
-        get_height() / 2.0,
-        -get_height() / 2.0,
-        get_height() / 2.0,
-        -get_height() / 2.0
+        get_width() / 2.0,
+        -get_width() / 2.0,
+        get_width() / 2.0,
+        -get_width() / 2.0
     };
 
     // Loop over each corner
@@ -266,14 +266,14 @@ void Car::reset()
     average_speed = 0.0;
 }
 
-double Car::get_width() const
+double Car::get_length() const
 {
-    return 60.0;
+    return 40.0;
 }
 
-double Car::get_height() const
+double Car::get_width() const
 {
-    return 30.0;
+    return 20.0;
 }
 
 bool Car::has_collided() const
@@ -362,8 +362,8 @@ void Car::update_all_sensors(const RoadGrid& tile_grid)
 
         // Find the front of the car
         const double front_sign = sensor.is_front ? 1.0 : -1.0;
-        const double origin_x = x + rot_vec_lon(get_width() / 2.0 * front_sign, 0);
-        const double origin_y = y + rot_vec_lat(get_width() / 2.0 * front_sign, 0);
+        const double origin_x = x + rot_vec_lon(get_length() / 2.0 * front_sign, 0);
+        const double origin_y = y + rot_vec_lat(get_length() / 2.0 * front_sign, 0);
 
         // Find the vector/slope to find the point out the front of the car
         const double dmag = std::sqrt(std::pow(sensor.delta_lon, 2.0) + std::pow(sensor.delta_lat, 2.0));
@@ -377,7 +377,7 @@ void Car::update_all_sensors(const RoadGrid& tile_grid)
         double yval = origin_y;
 
         // Define the sensor max range
-        const double sensor_max = 50.0;
+        const double sensor_max = 75.0;
 
         // Iterate up to the sensor max range
         double current_dist = 0.0;

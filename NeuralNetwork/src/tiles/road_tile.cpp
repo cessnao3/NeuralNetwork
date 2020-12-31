@@ -4,8 +4,8 @@
 
 #include <stdexcept>
 
-const uint32_t RoadTile::TILE_SIZE = 128;
-const uint32_t RoadTile::ROAD_WIDTH = 80;
+const uint32_t RoadTile::TILE_SIZE = 120;
+const uint32_t RoadTile::ROAD_WIDTH = 90;
 
 const uint32_t RoadTile::ROAD_WIDTH_LARGE = (RoadTile::TILE_SIZE + RoadTile::ROAD_WIDTH) / 2;
 const uint32_t RoadTile::ROAD_WIDTH_SMALL = (RoadTile::TILE_SIZE - RoadTile::ROAD_WIDTH) / 2;

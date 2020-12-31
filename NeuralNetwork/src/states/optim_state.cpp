@@ -37,10 +37,10 @@ bool OptimState::update_network_design()
     return reset_car;
 }
 
-bool OptimState::check_update_best_design(const double distance)
+bool OptimState::check_update_best_design(const double distance, const double avg_speed)
 {
     // Set the fitness score
-    optim.set_design_fitness(current_design_index, distance);
+    optim.set_design_fitness(current_design_index, distance * avg_speed);
 
     // Check if we shoudl update the values
     if (distance > distance_best)
@@ -49,6 +49,7 @@ bool OptimState::check_update_best_design(const double distance)
         distance_best = distance;
         net_best = net_optim;
         num_best_update_count += 1;
+        generation_best = current_generation;
 
         // Return true
         return true;

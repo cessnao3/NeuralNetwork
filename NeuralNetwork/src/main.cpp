@@ -45,6 +45,28 @@ int main()
         static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_width()),
         static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_height()));
     al_set_window_title(display, "Neural Network");
+
+    // Define the background display
+    ALLEGRO_BITMAP* background_bitmap = al_create_bitmap(
+        al_get_display_width(display),
+        al_get_display_height(display));
+
+    // Draw the background display
+    al_set_target_bitmap(background_bitmap);
+    for (size_t w = 0; w < state.tile_grid.get_width(); ++w)
+    {
+        for (size_t h = 0; h < state.tile_grid.get_height(); ++h)
+        {
+            RoadGrid::GridLoc* loc = state.tile_grid.at(h, w);
+            al_draw_bitmap(
+                loc->tile->get_bitmap(),
+                loc->x,
+                loc->y,
+                0);
+        }
+    }
+
+    // Reset to the main display
     al_set_target_bitmap(al_get_backbuffer(display));
 
     // Initialize the event queue and add events to the main queue
@@ -73,8 +95,8 @@ int main()
         return 1;
     }
 
-    ALLEGRO_TIMER* end_timer = al_create_timer(120);
-    al_start_timer(end_timer);
+    ALLEGRO_TIMER* end_timer = al_create_timer(60);
+    //al_start_timer(end_timer);
     al_register_event_source(queue, al_get_timer_event_source(end_timer));
 
     // Define a loop for running
@@ -85,10 +107,13 @@ int main()
         // Define the event
         ALLEGRO_EVENT event;
 
+        // Check if there is an input event ready
         if (!al_is_event_queue_empty(queue))
         {
+            // Obtain the event
             al_wait_for_event(queue, &event);
 
+            // Switch the event type to perform the action
             switch (event.type)
             {
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -134,16 +159,20 @@ int main()
                 break;
             }
 
+            // Break if we have set the program to stop
             if (!running)
             {
                 break;
             }
         }
 
+        // Get the main timer event queue event
         al_wait_for_event(timer_queue, &event);
 
-        loop_val = (loop_val + 1) % 20;
+        // Update the loop value
+        loop_val = (loop_val + 1) % 10;
 
+        // Clear/flush the event queue if requested
         if (loop_val == 0)
         {
             al_flush_event_queue(timer_queue);
@@ -155,18 +184,8 @@ int main()
         case ALLEGRO_EVENT_TIMER:
             if (event.timer.source == main_timer)
             {
-                for (size_t w = 0; w < state.tile_grid.get_width(); ++w)
-                {
-                    for (size_t h = 0; h < state.tile_grid.get_height(); ++h)
-                    {
-                        RoadGrid::GridLoc* loc = state.tile_grid.at(h, w);
-                        al_draw_bitmap(
-                            loc->tile->get_bitmap(),
-                            loc->x,
-                            loc->y,
-                            0);
-                    }
-                }
+                // Draw the background
+                al_draw_bitmap(background_bitmap, 0, 0, 0);
 
                 // Extract the car
                 const Car& car = state.car;
@@ -187,8 +206,8 @@ int main()
                 // Draw the Car
                 al_draw_rotated_bitmap(
                     car.get_bitmap(),
+                    car.get_length() / 2,
                     car.get_width() / 2,
-                    car.get_height() / 2,
                     car.get_car_x(),
                     car.get_car_y(),
                     car.get_rotation(),
@@ -268,6 +287,7 @@ int main()
 
     // Destroy Windows and Queue
     al_destroy_display(display);
+    al_destroy_bitmap(background_bitmap);
     al_destroy_event_queue(queue);
     al_destroy_event_queue(timer_queue);
     al_destroy_timer(main_timer);
