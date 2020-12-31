@@ -11,8 +11,8 @@ RoadTileManager::RoadTileManager()
     tiles_corner.push_back(RoadTileCorner(RoadTileCorner::Direction::SW));
 
     // Initialize Straight Types
-    tiles_straight.push_back(RoadTileStraight(RoadTileStraight::Direction::VERTICAL));
-    tiles_straight.push_back(RoadTileStraight(RoadTileStraight::Direction::HORIZONTAL));
+    tiles_straight.push_back(RoadTileStraight(RoadTileStraight::Direction::NS));
+    tiles_straight.push_back(RoadTileStraight(RoadTileStraight::Direction::EW));
 
     // Add resulting tiles
     tiles[RoadTileType::CORNER_NE] = &tiles_corner[0];
@@ -36,9 +36,4 @@ void RoadTileManager::init_bitmaps()
 RoadTile* RoadTileManager::get_tile(RoadTileType type)
 {
     return tiles[type];
-}
-
-size_t RoadTileManager::num_tiles() const
-{
-    return tiles.size();
 }

@@ -45,21 +45,24 @@ bool RoadTileCorner::point_on_road(const double x, const double y) const
 
     // Return if the distance is between the square values
     return
-        (dist_sqr >= std::pow(WIDTH_SMALL, 2.0)) &&
-        (dist_sqr <= std::pow(WIDTH_LARGE, 2.0));
+        (dist_sqr >= std::pow(ROAD_WIDTH_SMALL, 2.0)) &&
+        (dist_sqr <= std::pow(ROAD_WIDTH_LARGE, 2.0));
 }
 
 
 void RoadTileCorner::draw_bitmap()
 {
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
+    al_set_target_bitmap(bitmap);
     al_draw_filled_circle(
         corner_x,
         corner_y,
-        WIDTH_LARGE,
+        ROAD_WIDTH_LARGE,
         get_road_color());
     al_draw_filled_circle(
         corner_x,
         corner_y,
-        WIDTH_SMALL,
+        ROAD_WIDTH_SMALL,
         get_grass_color());
+    al_set_target_bitmap(prev_target);
 }

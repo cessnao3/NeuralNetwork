@@ -6,8 +6,8 @@
 RoadTileStraight::RoadTileStraight(const Direction dir) :
     direction(dir)
 {
-    if (dir != Direction::HORIZONTAL &&
-        dir != Direction::VERTICAL)
+    if (dir != Direction::EW &&
+        dir != Direction::NS)
     {
         throw std::invalid_argument("unknown direction provided");
     }
@@ -17,10 +17,10 @@ bool RoadTileStraight::point_on_road(const double x, const double y) const
 {
     switch (direction)
     {
-    case Direction::HORIZONTAL:
-        return y >= WIDTH_SMALL && y <= WIDTH_LARGE;
-    case Direction::VERTICAL:
-        return x >= WIDTH_SMALL && x <= WIDTH_LARGE;
+    case Direction::EW:
+        return y >= ROAD_WIDTH_SMALL && y <= ROAD_WIDTH_LARGE;
+    case Direction::NS:
+        return x >= ROAD_WIDTH_SMALL && x <= ROAD_WIDTH_LARGE;
     default:
         return false;
     }
@@ -28,12 +28,14 @@ bool RoadTileStraight::point_on_road(const double x, const double y) const
 
 void RoadTileStraight::draw_bitmap()
 {
-    if (direction == Direction::VERTICAL)
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
+    al_set_target_bitmap(bitmap);
+    if (direction == Direction::NS)
     {
         al_draw_filled_rectangle(
-            WIDTH_SMALL,
+            ROAD_WIDTH_SMALL,
             0,
-            WIDTH_LARGE,
+            ROAD_WIDTH_LARGE,
             TILE_SIZE,
             get_road_color());
     }
@@ -41,9 +43,10 @@ void RoadTileStraight::draw_bitmap()
     {
         al_draw_filled_rectangle(
             0,
-            WIDTH_SMALL,
+            ROAD_WIDTH_SMALL,
             TILE_SIZE,
-            WIDTH_LARGE,
+            ROAD_WIDTH_LARGE,
             get_road_color());
     }
+    al_set_target_bitmap(prev_target);
 }

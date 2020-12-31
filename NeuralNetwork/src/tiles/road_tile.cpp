@@ -7,11 +7,10 @@
 const uint32_t RoadTile::TILE_SIZE = 128;
 const uint32_t RoadTile::ROAD_WIDTH = 80;
 
-const uint32_t RoadTile::WIDTH_LARGE = (RoadTile::TILE_SIZE + RoadTile::ROAD_WIDTH) / 2;
-const uint32_t RoadTile::WIDTH_SMALL = (RoadTile::TILE_SIZE - RoadTile::ROAD_WIDTH) / 2;
+const uint32_t RoadTile::ROAD_WIDTH_LARGE = (RoadTile::TILE_SIZE + RoadTile::ROAD_WIDTH) / 2;
+const uint32_t RoadTile::ROAD_WIDTH_SMALL = (RoadTile::TILE_SIZE - RoadTile::ROAD_WIDTH) / 2;
 
-RoadTile::RoadTile() :
-    bitmap(nullptr)
+RoadTile::RoadTile()
 {
     // Empty Constructor
 }
@@ -22,7 +21,9 @@ RoadTile::RoadTile(const RoadTile& other) :
     if (other.bitmap != nullptr)
     {
         prepare_bitmap();
+        ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
         al_draw_bitmap(other.bitmap, 0, 0, 0);
+        al_set_target_bitmap(prev_target);
     }
 }
 
@@ -32,9 +33,11 @@ RoadTile& RoadTile::operator=(const RoadTile& other)
     {
         return *this;
     }
-
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
     al_set_target_bitmap(bitmap);
     al_draw_bitmap(other.bitmap, 0, 0, 0);
+    al_set_target_bitmap(prev_target);
+
     return *this;
 }
 
@@ -60,12 +63,18 @@ void RoadTile::prepare_bitmap()
 
     bitmap = al_create_bitmap(TILE_SIZE, TILE_SIZE);
 
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
+
     al_set_target_bitmap(bitmap);
     al_clear_to_color(get_grass_color());
+
+    al_set_target_bitmap(prev_target);
 }
 
 void RoadTile::finish_bitmap()
 {
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
+    al_set_target_bitmap(bitmap);
     al_draw_rectangle(
         1,
         1,
@@ -73,6 +82,7 @@ void RoadTile::finish_bitmap()
         TILE_SIZE,
         al_map_rgb(48, 48, 48),
         0);
+    al_set_target_bitmap(prev_target);
 }
 
 RoadTile::~RoadTile()

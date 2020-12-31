@@ -32,7 +32,7 @@ public:
     /// Steps the neural network to calculate the new outputs from the given inputs
     /// </summary>
     /// <returns>true if successful</returns>
-    bool step();
+    bool update_network_design();
 
     /// <summary>
     /// Adds a new layer to the network. Will not allow a new layer

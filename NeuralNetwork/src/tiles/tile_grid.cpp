@@ -1,5 +1,7 @@
 #include "tiles/tile_grid.h"
 
+#include <stdexcept>
+
 const uint32_t RoadGrid::GridLoc::get_center_x() const
 {
     return x + RoadTile::TILE_SIZE / 2;
@@ -21,8 +23,8 @@ RoadGrid::RoadGrid(size_t width, size_t height) :
         {
             GridLoc loc;
             loc.tile = nullptr;
-            loc.x = c * RoadTile::TILE_SIZE;
-            loc.y = r * RoadTile::TILE_SIZE;
+            loc.x = static_cast<uint32_t>(c * RoadTile::TILE_SIZE);
+            loc.y = static_cast<uint32_t>(r * RoadTile::TILE_SIZE);
             loc.type = RoadTileManager::RoadTileType::GRASS;
             tiles.push_back(loc);
         }
@@ -111,22 +113,21 @@ RoadGrid::GridLoc* RoadGrid::get_for_xy(const double x, const double y)
     return const_cast<GridLoc*>(loc);
 }
 
-bool RoadGrid::set(const size_t row, const size_t col, const RoadTileManager::RoadTileType type)
+void RoadGrid::set(const size_t row, const size_t col, const RoadTileManager::RoadTileType type)
 {
-    return set(rc_to_ind(row, col), type);
+    set(rc_to_ind(row, col), type);
 }
 
-bool RoadGrid::set(const size_t ind, const RoadTileManager::RoadTileType type)
+void RoadGrid::set(const size_t ind, const RoadTileManager::RoadTileType type)
 {
     if (ind < tiles.size())
     {
         tiles[ind].type = type;
         tiles[ind].tile = manager.get_tile(type);
-        return true;
     }
     else
     {
-        return false;
+        throw std::out_of_range("tile index out of range");
     }
 }
 

@@ -163,6 +163,9 @@
     <ClCompile Include="src\neural\link.cpp" />
     <ClCompile Include="src\neural\net.cpp" />
     <ClCompile Include="src\neural\node.cpp" />
+    <ClCompile Include="src\optim\genetic.cpp" />
+    <ClCompile Include="src\states\game_state.cpp" />
+    <ClCompile Include="src\states\optim_state.cpp" />
     <ClCompile Include="src\tiles\road_tile.cpp" />
     <ClCompile Include="src\tiles\road_tile_corner.cpp" />
     <ClCompile Include="src\tiles\road_tile_grass.cpp" />

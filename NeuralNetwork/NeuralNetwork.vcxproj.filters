@@ -39,6 +39,12 @@
     <Filter Include="Header Files\states">
       <UniqueIdentifier>{92d29392-849d-40cf-a4f8-87536d736c4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\states">
+      <UniqueIdentifier>{55f9edbb-c991-46e6-b51f-ddd24b4473fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\optim">
+      <UniqueIdentifier>{3df380fa-b06e-4c13-a727-893e8173ac93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -76,6 +82,15 @@
     </ClCompile>
     <ClCompile Include="src\car\car.cpp">
       <Filter>Source Files\car</Filter>
+    </ClCompile>
+    <ClCompile Include="src\optim\genetic.cpp">
+      <Filter>Source Files\optim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\optim_state.cpp">
+      <Filter>Source Files\states</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\game_state.cpp">
+      <Filter>Source Files\states</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

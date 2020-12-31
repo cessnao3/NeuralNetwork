@@ -7,33 +7,56 @@
 
 const double Car::PI = 3.14159265358979323846;
 
-Car::Car() :
-    rotation(0.0),
-    x(0.0),
-    y(0.0),
-    start_x(0.0),
-    start_y(0.0),
-    start_rot(0.0),
-    distance(0.0),
-    input_forward_prev(0.0),
-    input_turn_prev(0.0),
-    collided(false),
-    bitmap(nullptr)
+Car::Car()
 {
-    // Empty Constructor
+    // Initialize sensor values
+    const std::vector<double> delta_lons = {
+        1, 1, 1, 0, 0, 2, 2
+    };
+
+    const std::vector<double> delta_lats = {
+        0, 1, -1, 1, -1, 1, -1
+    };
+
+    const std::vector<bool> fronts = {
+        true, true, true, true, true, true, true
+    };
+
+    if (delta_lons.size() != delta_lats.size() ||
+        delta_lons.size() != fronts.size())
+    {
+        throw std::range_error("car sensor parameters must have the same size");
+    }
+    else
+    {
+        for (size_t i = 0; i < delta_lons.size(); ++i)
+        {
+            Sensor s;
+            s.delta_lat = delta_lats[i];
+            s.delta_lon = delta_lons[i];
+            s.is_front = fronts[i];
+            sensors.push_back(s);
+        }
+    }
 }
 
 void Car::init_bitmap()
 {
+    // Destroy the bitmap if it already exists
     if (bitmap != nullptr)
     {
         al_destroy_bitmap(bitmap);
         bitmap = nullptr;
     }
 
+    // Define the bitmap target
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
+
+    // Create a new bitmap and target to draw
     bitmap = al_create_bitmap(get_width(), get_height());
     al_set_target_bitmap(bitmap);
 
+    // Clear the bitmap
     al_clear_to_color(al_map_rgb(0, 0, 255));
 
     // Add lights
@@ -71,6 +94,9 @@ void Car::init_bitmap()
         light_depth,
         get_height(),
         taillight_color);
+
+    // Reset the bitmap target
+    al_set_target_bitmap(prev_target);
 }
 
 ALLEGRO_BITMAP* Car::get_bitmap() const
@@ -78,7 +104,7 @@ ALLEGRO_BITMAP* Car::get_bitmap() const
     return bitmap;
 }
 
-void Car::set_rotation(const double rot_val)
+void Car::set_start_rotation(const double rot_val)
 {
     this->start_rot = std::fmod(rot_val, 2 * PI);
     this->reset();
@@ -107,7 +133,7 @@ double Car::step_filter(const double in, const double prev, const double rate)
     }
 }
 
-void Car::step(const double forward, const double turn)
+void Car::step_movement(const RoadGrid& grid, const double forward, const double turn)
 {
     // Move only if we haven't collided with anything
     if (!collided)
@@ -153,6 +179,16 @@ void Car::step(const double forward, const double turn)
 
         // Increment the distance value
         distance += forward_speed;
+
+        // Update the average speed and step count
+        average_speed = (average_speed * car_step_count + forward_speed) / (car_step_count + 1.0);
+        car_step_count += 1;
+
+        // Check for collision
+        check_collision(grid);
+
+        // Update sensor values
+        update_all_sensors(grid);
     }
 }
 
@@ -232,6 +268,10 @@ void Car::reset()
     // Reset velocity state
     input_forward_prev = 0.0;
     input_turn_prev = 0.0;
+
+    // Reset the velocity state
+    car_step_count = 0;
+    average_speed = 0.0;
 }
 
 double Car::get_width() const
@@ -289,55 +329,61 @@ double Car::rot_vec_lat(const double lon, const double lat) const
     return lon * std::sin(rotation) + lat * std::cos(rotation);
 }
 
-Car::SensorResult Car::get_sensor(const RoadGrid& tile_grid, const size_t sensor_num) const
+const Car::SensorResult& Car::get_sensor(const size_t sensor_num) const
 {
-    // Define car sensor values
-    switch (sensor_num)
+    if (sensor_num < sensor_count())
     {
-    case 0:
-        return calc_sensor_dist(tile_grid, 1, 0, true);
-    case 1:
-        return calc_sensor_dist(tile_grid, 1, 1, true);
-    case 2:
-        return calc_sensor_dist(tile_grid, 1, -1, true);
-    case 3:
-        return calc_sensor_dist(tile_grid, 0, 1, true);
-    case 4:
-        return calc_sensor_dist(tile_grid, 0, -1, true);
-    case 5:
-        return calc_sensor_dist(tile_grid, 2, 1, true);
-    case 6:
-        return calc_sensor_dist(tile_grid, 2, -1, true);
-    case 7:
-        return calc_sensor_dist(tile_grid, 0, 1, false);
-    case 8:
-        return calc_sensor_dist(tile_grid, 0, -1, false);
-    default:
-        throw std::range_error("invalid sensor number provided to car");
+        return sensors[sensor_num].result;
+    }
+    else
+    {
+        throw std::out_of_range("sensor index is out of range");
     }
 }
 
 size_t Car::sensor_count() const
 {
-    return 7;
+    return sensors.size();
 }
 
-double Car::get_forward_vel() const
+double Car::get_forward_input() const
 {
     return input_forward_prev;
 }
 
-Car::SensorResult Car::calc_sensor_dist(const RoadGrid& tile_grid, const double dlon, const double dlat, const bool is_front) const
+double Car::get_average_speed() const
+{
+    return average_speed;
+}
+
+uint64_t Car::get_step_count() const
+{
+    return car_step_count;
+}
+
+void Car::update_all_sensors(const RoadGrid& tile_grid)
+{
+    for (size_t i = 0; i < sensors.size(); ++i)
+    {
+        calc_sensor_dist(
+            tile_grid,
+            sensors[i]);
+    }
+}
+
+void Car::calc_sensor_dist(
+    const RoadGrid& tile_grid,
+    Car::Sensor& sensor)
 {
     // Find the front of the car
-    const double front_sign = is_front ? 1.0 : -1.0;
+    const double front_sign = sensor.is_front ? 1.0 : -1.0;
     const double origin_x = x + rot_vec_lon(get_width() / 2.0 * front_sign, 0);
     const double origin_y = y + rot_vec_lat(get_width() / 2.0 * front_sign, 0);
 
     // Find the vector/slope to find the point out the front of the car
-    const double dmag = std::sqrt(dlon * dlon + dlat * dlat);
-    const double dlon_rot = rot_vec_lon(dlon, dlat) / dmag;
-    const double dlat_rot = rot_vec_lat(dlon, dlat) / dmag;
+    const double dmag = std::sqrt(std::pow(sensor.delta_lon, 2.0) + std::pow(sensor.delta_lat, 2.0));
+    const double dlon_rot = rot_vec_lon(sensor.delta_lon, sensor.delta_lat) / dmag;
+    const double dlat_rot = rot_vec_lat(sensor.delta_lon, sensor.delta_lat) / dmag;
 
     // Determine the increment to use in searching
     const double incr = 2;
@@ -345,49 +391,11 @@ Car::SensorResult Car::calc_sensor_dist(const RoadGrid& tile_grid, const double 
     double xval = origin_x;
     double yval = origin_y;
 
+    // Define the sensor max range
     const double sensor_max = 50.0;
 
-    /*
-    double lb = 0.0;
-    double ub = sensor_max;
+    // Iterate up to the sensor max range
     double current_dist = 0.0;
-
-    bool found = false;
-    while (!found)
-    {
-        const double diff = ub - lb;
-        const double curr = (ub - lb) * 0.5 + lb;
-        if (diff < 2.0)
-        {
-            found = true;
-            current_dist = diff * 0.5;
-        }
-        else
-        {
-            xval = origin_x + dlon_rot * curr;
-            yval = origin_y + dlat_rot * curr;
-
-            const RoadGrid::GridLoc* loc = grid.get_for_xy(xval, yval);
-
-            if (loc == nullptr)
-            {
-                ub = curr;
-            }
-            else if (!loc->tile->point_on_road(xval - loc->x, yval - loc->y))
-            {
-                ub = curr;
-            }
-            else
-            {
-                lb = curr;
-            }
-        }
-
-    }
-    */
-
-    double current_dist = 0.0;
-    //while (current_dist < std::pow(std::max(grid.get_width(), grid.get_height()) * RoadTile::TILE_SIZE, 2))
     while (current_dist < sensor_max)
     {
         xval = origin_x + dlon_rot * current_dist;
@@ -406,13 +414,10 @@ Car::SensorResult Car::calc_sensor_dist(const RoadGrid& tile_grid, const double 
         current_dist += incr;
     }
 
-    SensorResult s;
-    s.start_x = origin_x;
-    s.start_y = origin_y;
-    s.impact_x = xval;
-    s.impact_y = yval;
-    //s.dist = std::max(0.0, std::min(sensor_max, current_dist));
-    s.dist = current_dist;
-
-    return s;
+    // Define the sensor result values
+    sensor.result.start_x = origin_x;
+    sensor.result.start_y = origin_y;
+    sensor.result.impact_x = xval;
+    sensor.result.impact_y = yval;
+    sensor.result.dist = current_dist;
 }

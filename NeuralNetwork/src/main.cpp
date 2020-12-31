@@ -42,8 +42,8 @@ int main()
 
     // Initialize the display
     ALLEGRO_DISPLAY* display = al_create_display(
-        RoadTile::TILE_SIZE * state.tile_grid.get_width(),
-        RoadTile::TILE_SIZE * state.tile_grid.get_height());
+        static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_width()),
+        static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_height()));
     al_set_window_title(display, "Neural Network");
 
     // Initialize the event queue and add events to the main queue
@@ -68,9 +68,6 @@ int main()
         std::cerr << "Unable to load font!" << std::endl;
         return 1;
     }
-    
-    // Reset the display buffer
-    al_set_target_bitmap(al_get_backbuffer(display));
 
     // Define a loop for running
     bool running = true;
@@ -146,7 +143,7 @@ int main()
                 // Draw the car sensor lines
                 for (size_t i = 0; i < car.sensor_count(); ++i)
                 {
-                    Car::SensorResult s = car.get_sensor(state.tile_grid, i);
+                    Car::SensorResult s = car.get_sensor(i);
                     al_draw_line(
                         s.start_x,
                         s.start_y,
@@ -199,7 +196,7 @@ int main()
                     case 3:
                         if (state.get_current_mode() == GameState::GameMode::OPTIM)
                         {
-                            status_str << "Generation " << state.optim_state.get_current_generation() << ", Test " << state.optim_state.get_current_index();
+                            status_str << "Generation " << state.optim_state.get_current_generation() << ", Test " << state.optim_state.get_current_design_index();
                         }
                         else
                         {

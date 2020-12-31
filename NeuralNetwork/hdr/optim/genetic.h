@@ -3,180 +3,139 @@
 
 #include <vector>
 #include <random>
-#include <stdexcept>
 
+/// <summary>
+/// GeneticOptim provides a basic genetic optimization algorithm
+/// for the provided design variables to maximize the fitness of the
+/// objective function
+/// </summary>
 class GeneticOptim
 {
 protected:
+    /// <summary>
+    /// OptimStatus is a structure to contain information regarding the
+    /// current fitness and design variables for a given design
+    /// </summary>
     struct OptimStatus
     {
-        OptimStatus(const size_t num_vars) :
-            design_variables(num_vars, 0.0),
-            fitness(0.0)
-        {
-            // Empty Constructor
-        }
+        /// <summary>
+        /// Initializes the OptimStatus
+        /// </summary>
+        /// <param name="num_vars">the number of design variables to use</param>
+        OptimStatus(const size_t num_vars);
 
-        void reset()
-        {
-            fitness = 0.0;
-        }
+        /// <summary>
+        /// Resets the fitness score of the design
+        /// </summary>
+        void reset();
 
+        /// <summary>
+        /// Provides the design variable values
+        /// </summary>
         std::vector<double> design_variables;
+
+        /// <summary>
+        /// Provides the fitness score of the design
+        /// </summary>
         double fitness;
     };
 
 public:
-    GeneticOptim(const size_t num_population, const size_t num_des_var) :
-        population(num_population, OptimStatus(num_des_var)),
-        distribution(0.0, 1.0),
-        index_distribution(0, num_population - 1),
-        generator(0),
-        num_des_var(num_des_var),
-        generation(0)
-    {
-        if (num_population == 0 || num_des_var == 0)
-        {
-            throw std::invalid_argument("population and design variables must be positive");
-        }
-    }
+    /// <summary>
+    /// Constructs the Genetic Optimization algorithm
+    /// </summary>
+    /// <param name="num_population">the size of the population to use</param>
+    /// <param name="num_des_var">the number of design variables to have</param>
+    GeneticOptim(
+        const size_t num_designs,
+        const size_t num_des_var);
 
-    void init_population()
-    {
-        for (size_t i = 0; i < population.size(); ++i)
-        {
-            for (size_t j = 0; j < population[i].design_variables.size(); ++j)
-            {
-                population[i].design_variables[j] = get_random();
-            }
-        }
-    }
+    /// <summary>
+    /// Obtain the design variables for a given design
+    /// </summary>
+    /// <param name="i">the design index</param>
+    /// <returns>the design variables</returns>
+    const std::vector<double>& get_design(const size_t i);
 
-    const std::vector<double>& get_population(const size_t i)
-    {
-        return population[i].design_variables;
-    }
+    /// <summary>
+    /// Provides the count of the current designs
+    /// </summary>
+    /// <returns>the number of designs in the optimization algorithm</returns>
+    const size_t design_count() const;
 
-    const size_t population_size() const
-    {
-        return population.size();
-    }
+    /// <summary>
+    /// Sets the fitness score for a given design
+    /// </summary>
+    /// <param name="ind">the design index to check</param>
+    /// <param name="val">the fitness value to assign</param>
+    void set_design_fitness(const size_t ind, const double val);
 
-    void set_result(const size_t ind, const double val)
-    {
-        population[ind].fitness = val;
-    }
+    /// <summary>
+    /// Updates the designs and steps the genetic algorithm once all new fitness
+    /// values are assigned, resetting the fitness scores to zero for each new design
+    /// </summary>
+    void update_design();
 
-    void update_population()
-    {
-        std::vector<size_t> combination_group(population.size() * 2, 0);
-        std::vector<OptimStatus> new_population(population.size(), OptimStatus(num_des_var));
+    /// <summary>
+    /// Provides the count of the design variables
+    /// </summary>
+    /// <returns>the number of design variables in the optimization</returns>
+    size_t design_variable_count() const;
 
-        double min_val = 0.0;
-        double max_val = 0.0;
-        size_t max_i = 0;
-
-        for (size_t i = 0; i < population.size(); ++i)
-        {
-            const double fv = population[i].fitness;
-            if (i == 0)
-            {
-                min_val = fv;
-                max_val = fv;
-                max_i = i;
-            }
-            else
-            {
-                if (fv > max_val)
-                {
-                    max_i = i;
-                }
-
-                min_val = std::min(fv, min_val);
-                max_val = std::max(fv, max_val);
-            }
-        }
-
-        // Determine the indices to add to the combination group
-        std::uniform_int_distribution<size_t> index_dist;
-
-        for (size_t i = 0; i < population.size(); ++i)
-        {
-            for (size_t j = 0; j < 2; ++j)
-            {
-                size_t i2 = i;
-
-                while (i == i2)
-                {
-                    i2 = index_distribution(generator);
-                }
-
-                combination_group[2 * i + j] = (population[i].fitness > population[i2].fitness) ? i : i2;
-            }
-        }
-
-        // Perform the sample combinations
-        for (size_t i = 0; i < population.size(); ++i)
-        {
-            const double w1 = 0.75;
-            const double w2 = 1.0 - w1;
-
-            const double ind1 = combination_group[2 * i];
-            const double ind2 = combination_group[2 * i + 1];
-
-            const OptimStatus& o1 = population[ind1];
-            const OptimStatus& o2 = population[ind2];
-
-            const OptimStatus& val_max = (o1.fitness > o2.fitness) ? o1 : o2;
-            const OptimStatus& val_min = (o1.fitness > o2.fitness) ? o2 : o1;
-
-            OptimStatus& child = new_population[i];
-
-            for (size_t j = 0; j < population[i].design_variables.size(); ++j)
-            {
-                double& desvar = child.design_variables[j];
-                desvar = w1 * val_max.design_variables[j] + w2 * val_min.design_variables[j];
-                desvar += get_random() * 0.1;
-                desvar = std::min(upper_bound, std::max(lower_bound, desvar));
-            }
-        }
-
-        // Reset the status values
-        population = new_population;
-        generation += 1;
-    }
-
-    size_t design_variable_size() const
-    {
-        return num_des_var;
-    }
-
-    size_t get_generation() const
-    {
-        return generation;
-    }
+    /// <summary>
+    /// Provides the current generation count for the optimization steps
+    /// </summary>
+    /// <returns>the number of times update_population has been called</returns>
+    size_t get_generation() const;
 
 protected:
-    double get_random()
-    {
-        return lower_bound + distribution(generator) * (upper_bound - lower_bound);
-    }
+    /// <summary>
+    /// Obtains a random number to assign to a design variable between the
+    /// provided lower and upper bounds
+    /// </summary>
+    /// <returns>uniform random number between the upper and lower bounds</returns>
+    double get_random();
 
 protected:
-    std::vector<OptimStatus> population;
+    /// <summary>
+    /// A vector to store the optimization status for each design
+    /// </summary>
+    std::vector<OptimStatus> designs;
 
+    /// <summary>
+    /// The random number generator
+    /// </summary>
     std::default_random_engine generator;
+
+    /// <summary>
+    /// The real distribution between 0 and 1 to use for generating random numbers
+    /// </summary>
     std::uniform_real_distribution<double> distribution;
+
+    /// <summary>
+    /// The integer distribution to use to find a random index value
+    /// </summary>
     std::uniform_int_distribution<size_t> index_distribution;
 
-    // Make Static
+    /// <summary>
+    /// Storage for the number of design variables in a solution
+    /// </summary>
     size_t num_des_var;
 
-    // Make Static/Constant
-    double lower_bound = -1;
-    double upper_bound = 1;
+    /// <summary>
+    /// Storage for the current generation value for the solution
+    /// </summary>
+    size_t current_generation;
 
-    size_t generation;
+    /// <summary>
+    /// The lower-bound of the design space
+    /// </summary>
+    static const double lower_bound;
+
+    /// <summary>
+    /// The upper-bound of the design space
+    /// </summary>
+    static const double upper_bound;
 };
 
 #endif

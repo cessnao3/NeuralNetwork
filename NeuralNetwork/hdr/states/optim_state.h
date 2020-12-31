@@ -4,128 +4,141 @@
 #include "neural/net.h"
 #include "optim/genetic.h"
 
+/// <summary>
+/// OptimState provides the overall state of the optimization
+/// </summary>
 class OptimState
 {
     //friend class GameState;
 
 public:
-    OptimState(const size_t sensor_count, const size_t num_outputs) :
-        net_optim(NeuralNetwork::from_layers({ sensor_count, 3 * sensor_count, num_outputs })),
-        net_best(net_optim),
-        optim(num_population, net_optim.get_links().size())
-    {
-        optim.init_population();
-    }
+    /// <summary>
+    /// Constructs an object to track the overall optimization state
+    /// </summary>
+    /// <param name="sensor_count">the number of inputs to set</param>
+    /// <param name="num_outputs">the number of outputs to set</param>
+    OptimState(const size_t num_inputs, const size_t num_outputs);
 
-    bool step()
-    {
-        bool reset_car = false;
+    /// <summary>
+    /// Steps the initial setup for the optimization to update the design
+    /// currently contained in the neural network
+    /// </summary>
+    /// <returns>true if the car should be reset</returns>
+    bool update_network_design();
 
-        if (update_population)
-        {
-            // Set the gain values to the current population design variables
-            const std::vector<double>& current_desvars = optim.get_population(current_population_index);
-            for (size_t i = 0; i < optim.design_variable_size(); ++i)
-            {
-                net_optim.get_links()[i].set_gain(current_desvars[i]);
-            }
+    /// <summary>
+    /// Determines whether the best design should be updated based on the input
+    /// trial result parameters
+    /// </summary>
+    /// <param name="distance">the distance traveled</param>
+    /// <returns>true if the best design has been updated</returns>
+    bool check_update_best_design(const double distance);
 
-            // Reset State
-            update_population = false;
-            reset_car = true;
-        }
+    /// <summary>
+    /// Steps to the next network, updating the optimization design variables as necessary
+    /// if all designs have been set and accounted for
+    /// </summary>
+    void step_to_next_design();
 
-        return reset_car;
-    }
+    /// <summary>
+    /// Provides the best distance so far
+    /// </summary>
+    /// <returns>the distance with the best fitness</returns>
+    double get_best_distance() const;
 
-    bool update_best(const double distance, const double average_speed)
-    {
-        optim.set_result(current_population_index, distance * average_speed);
+    /// <summary>
+    /// Provides the neural network currently used in optimization
+    /// </summary>
+    /// <returns>the neural network used in optimization for the current generation/design</returns>
+    NeuralNetwork* get_optim_network();
 
-        if (distance > distance_best)
-        {
-            distance_best = distance;
-            net_best = net_optim;
-            num_best_update_count += 1;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    /// <summary>
+    /// Provides the neural network with the best fitness
+    /// </summary>
+    /// <returns>the neural network with the best fitness</returns>
+    NeuralNetwork* get_best_network();
 
-    void next_network()
-    {
-        current_population_index += 1;
-        if (current_population_index >= num_population)
-        {
-            optim.update_population();
-            current_generation += 1;
-            current_population_index = 0;
-        }
-        set_update_population();
-    }
+    /// <summary>
+    /// Provides the current generation
+    /// </summary>
+    /// <returns>the current generation count</returns>
+    size_t get_current_generation() const;
 
-    double get_best_distance() const
-    {
-        return distance_best;
-    }
+    /// <summary>
+    /// Provides the generation where the best value so far has been found
+    /// </summary>
+    /// <returns>the generation with the best fitness so far</returns>
+    size_t get_best_generation() const;
 
-    size_t get_best_generation() const
-    {
-        return generation_best;
-    }
+    /// <summary>
+    /// Provides the current design index within a generation
+    /// </summary>
+    /// <returns>the current design index</returns>
+    size_t get_current_design_index() const;
 
-    NeuralNetwork* get_best_network()
-    {
-        return &net_best;
-    }
+    /// <summary>
+    /// Sets the flag to indicate that the design will need to be updated on next init call
+    /// </summary>
+    void set_update_design_flag();
 
-    NeuralNetwork* get_optim_network()
-    {
-        return &net_optim;
-    }
-
-    size_t get_current_generation() const
-    {
-        return current_generation;
-    }
-
-    size_t get_current_index() const
-    {
-        return current_population_index;
-    }
-
-    void set_update_population()
-    {
-        update_population = true;
-    }
-
-    size_t get_num_best_update_counts() const
-    {
-        return num_best_update_count;
-    }
+    /// <summary>
+    /// Provides the number of times that the best network was updated
+    /// </summary>
+    /// <returns>the number of calls to check_update_best_design that return true</returns>
+    size_t get_num_best_update_counts() const;
 
 private:
-    // Make Static
-    const size_t num_population = 50;
+    /// <summary>
+    /// The overall number of designs to use in the optimization within
+    /// each generation
+    /// </summary>
+    static const size_t num_designs;
 
 private:
+    /// <summary>
+    /// The neural network used in optimization
+    /// </summary>
     NeuralNetwork net_optim;
+
+    /// <summary>
+    /// The neural network with the best found so far fitness
+    /// </summary>
     NeuralNetwork net_best;
 
+    /// <summary>
+    /// The optimization algorithm
+    /// </summary>
     GeneticOptim optim;
 
+    /// <summary>
+    /// The best distance so far
+    /// </summary>
     double distance_best = 0.0;
+
+    /// <summary>
+    /// The generation with the best distance so far
+    /// </summary>
     size_t generation_best = 0;
 
+    /// <summary>
+    /// The current generation for optimization
+    /// </summary>
     size_t current_generation = 0;
-    size_t current_population_index = 0;
 
+    /// <summary>
+    /// The current design index within a generation
+    /// </summary>
+    size_t current_design_index = 0;
+
+    /// <summary>
+    /// The number of updates to the best index
+    /// </summary>
     size_t num_best_update_count = 0;
 
-    bool update_population = true;
+    /// <summary>
+    /// Flag to indicate that the design should be updated
+    /// </summary>
+    bool update_design = true;
 };
 
 #endif
