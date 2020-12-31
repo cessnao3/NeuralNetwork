@@ -52,14 +52,17 @@ int main()
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
 
+    // Define a timer event queue
+    ALLEGRO_EVENT_QUEUE* timer_queue = al_create_event_queue();
+
     // Define an event timer for loop
-    ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 60.0);
-    al_register_event_source(queue, al_get_timer_event_source(main_timer));
+    ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 30.0);
+    al_register_event_source(timer_queue, al_get_timer_event_source(main_timer));
     al_start_timer(main_timer);
 
     // Define an event timer for the physics step
     ALLEGRO_TIMER* car_step_timer = al_create_timer(state.current_period());
-    al_register_event_source(queue, al_get_timer_event_source(car_step_timer));
+    al_register_event_source(timer_queue, al_get_timer_event_source(car_step_timer));
     al_start_timer(car_step_timer);
 
     // Load the font
@@ -70,72 +73,85 @@ int main()
         return 1;
     }
 
-    ALLEGRO_EVENT_QUEUE* end_queue = al_create_event_queue();
     ALLEGRO_TIMER* end_timer = al_create_timer(120);
     al_start_timer(end_timer);
-    al_register_event_source(end_queue, al_get_timer_event_source(end_timer));
+    al_register_event_source(queue, al_get_timer_event_source(end_timer));
 
     // Define a loop for running
     bool running = true;
     size_t loop_val = 0;
     while (running)
     {
-        // Check for end value
-        if (!al_is_event_queue_empty(end_queue))
-        {
-            running = false;
-            break;
-        }
-
         // Define the event
         ALLEGRO_EVENT event;
-        al_wait_for_event(queue, &event);
 
-        loop_val = (loop_val + 1) % 1000;
+        if (!al_is_event_queue_empty(queue))
+        {
+            al_wait_for_event(queue, &event);
+
+            switch (event.type)
+            {
+            case ALLEGRO_EVENT_DISPLAY_CLOSE:
+                running = false;
+                break;
+            case ALLEGRO_EVENT_KEY_DOWN:
+                switch (event.keyboard.keycode)
+                {
+                case ALLEGRO_KEY_ESCAPE:
+                    running = false;
+                    break;
+                case ALLEGRO_KEY_UP:
+                    state.increment_step_frequency();
+                    al_set_timer_speed(car_step_timer, state.current_period());
+                    al_flush_event_queue(queue);
+                    break;
+                case ALLEGRO_KEY_DOWN:
+                    state.decrement_step_frequency();
+                    al_set_timer_speed(car_step_timer, state.current_period());
+                    al_flush_event_queue(queue);
+                    break;
+                case ALLEGRO_KEY_HOME:
+                    if (state.get_current_mode() == GameState::GameMode::BEST || state.get_current_mode() == GameState::GameMode::FILE)
+                    {
+                        state.reset_car();
+                    }
+                    break;
+                case ALLEGRO_KEY_1:
+                    state.set_game_mode(GameState::GameMode::OPTIM);
+                    break;
+                case ALLEGRO_KEY_2:
+                    state.set_game_mode(GameState::GameMode::BEST);
+                    break;
+                case ALLEGRO_KEY_3:
+                    state.set_game_mode(GameState::GameMode::FILE);
+                }
+                break;
+            case ALLEGRO_EVENT_TIMER:
+                if (event.timer.source == end_timer)
+                {
+                    running = false;
+                }
+                break;
+            }
+
+            if (!running)
+            {
+                break;
+            }
+        }
+
+        al_wait_for_event(timer_queue, &event);
+
+        loop_val = (loop_val + 1) % 20;
 
         if (loop_val == 0)
         {
-            al_flush_event_queue(queue);
+            al_flush_event_queue(timer_queue);
         }
 
         // Switch cast
         switch (event.type)
         {
-        case ALLEGRO_EVENT_DISPLAY_CLOSE:
-            running = false;
-            break;
-        case ALLEGRO_EVENT_KEY_DOWN:
-            switch (event.keyboard.keycode)
-            {
-            case ALLEGRO_KEY_ESCAPE:
-                running = false;
-                break;
-            case ALLEGRO_KEY_UP:
-                state.increment_step_frequency();
-                al_set_timer_speed(car_step_timer, state.current_period());
-                al_flush_event_queue(queue);
-                break;
-            case ALLEGRO_KEY_DOWN:
-                state.decrement_step_frequency();
-                al_set_timer_speed(car_step_timer, state.current_period());
-                al_flush_event_queue(queue);
-                break;
-            case ALLEGRO_KEY_HOME:
-                if (state.get_current_mode() == GameState::GameMode::BEST || state.get_current_mode() == GameState::GameMode::FILE)
-                {
-                    state.reset_car();
-                }
-                break;
-            case ALLEGRO_KEY_1:
-                state.set_game_mode(GameState::GameMode::OPTIM);
-                break;
-            case ALLEGRO_KEY_2:
-                state.set_game_mode(GameState::GameMode::BEST);
-                break;
-            case ALLEGRO_KEY_3:
-                state.set_game_mode(GameState::GameMode::FILE);
-            }
-            break;
         case ALLEGRO_EVENT_TIMER:
             if (event.timer.source == main_timer)
             {
@@ -249,11 +265,11 @@ int main()
     // Destroy Windows and Queue
     al_destroy_display(display);
     al_destroy_event_queue(queue);
+    al_destroy_event_queue(timer_queue);
     al_destroy_timer(main_timer);
     al_destroy_timer(car_step_timer);
     al_destroy_font(font);
 
-    al_destroy_event_queue(end_queue);
     al_destroy_timer(end_timer);
 
     // Reset Pointers

@@ -72,6 +72,12 @@ public:
     std::string get_output_fname() const;
 
     /// <summary>
+    /// Provides the temporary output fname for the current best updated count
+    /// </summary>
+    /// <returns></returns>
+    std::string get_temp_fname() const;
+
+    /// <summary>
     /// Provides the current network for the given mode
     /// </summary>
     /// <returns>the current network associated with the given mdoe</returns>
@@ -151,7 +157,7 @@ private:
     /// <summary>
     /// Defines the frequency multiplier to use to modify the game state
     /// </summary>
-    uint32_t frequency_multipler = 3;
+    uint32_t frequency_multipler = 0;
 
     /// <summary>
     /// Defines the requested forward input

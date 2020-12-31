@@ -176,12 +176,9 @@ void GameState::step_state()
             // Check if the provided distance is better than the previous value
             if (optim_state.check_update_best_design(car.get_distance()))
             {
-                // Define the output filename
-                std::ostringstream fname;
-                fname << get_output_fname() << "." << optim_state.get_num_best_update_counts();
-
                 // Save the resulting network
-                std::ofstream output(fname.str());
+                const std::string fname = get_temp_fname();
+                std::ofstream output(fname);
                 if (output.is_open())
                 {
                     output << optim_state.get_best_network()->get_config();
@@ -190,7 +187,7 @@ void GameState::step_state()
                 else
                 {
                     std::ostringstream error_str;
-                    error_str << "Error opening file " << fname.str() << " for writing" << std::endl;
+                    error_str << "Error opening file " << fname << " for writing" << std::endl;
                     throw std::exception(error_str.str().c_str());
                 }
             }
@@ -217,6 +214,13 @@ double GameState::get_best_distance() const
 std::string GameState::get_output_fname() const
 {
     return "default.txt";
+}
+
+std::string GameState::get_temp_fname() const
+{
+    std::ostringstream fname;
+    fname << "temp_" << optim_state.get_num_best_update_counts() << ".txt";
+    return fname.str();
 }
 
 NeuralNetwork* GameState::get_selected_network()
@@ -252,7 +256,7 @@ void GameState::decrement_step_frequency()
 
 uint64_t GameState::current_frequency() const
 {
-    return car_step_base_frequency * std::pow(10, frequency_multipler);
+    return car_step_base_frequency * std::pow(9, frequency_multipler);
 }
 
 double GameState::current_period() const
