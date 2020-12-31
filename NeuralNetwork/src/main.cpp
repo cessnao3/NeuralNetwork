@@ -239,6 +239,10 @@ int main()
                         {
                             status_str << "Best Distance: " << state.get_best_distance();
                         }
+                        else if (state.get_current_mode() == GameState::GameMode::BEST)
+                        {
+                            status_str << "Generation: " << state.optim_state.get_best_generation();
+                        }
                         break;
                     }
 
