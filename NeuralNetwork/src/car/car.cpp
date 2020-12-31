@@ -365,59 +365,53 @@ void Car::update_all_sensors(const RoadGrid& tile_grid)
 {
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        calc_sensor_dist(
-            tile_grid,
-            sensors[i]);
-    }
-}
+        // Extract the sensor
+        Sensor& sensor = sensors[i];
 
-void Car::calc_sensor_dist(
-    const RoadGrid& tile_grid,
-    Car::Sensor& sensor)
-{
-    // Find the front of the car
-    const double front_sign = sensor.is_front ? 1.0 : -1.0;
-    const double origin_x = x + rot_vec_lon(get_width() / 2.0 * front_sign, 0);
-    const double origin_y = y + rot_vec_lat(get_width() / 2.0 * front_sign, 0);
+        // Find the front of the car
+        const double front_sign = sensor.is_front ? 1.0 : -1.0;
+        const double origin_x = x + rot_vec_lon(get_width() / 2.0 * front_sign, 0);
+        const double origin_y = y + rot_vec_lat(get_width() / 2.0 * front_sign, 0);
 
-    // Find the vector/slope to find the point out the front of the car
-    const double dmag = std::sqrt(std::pow(sensor.delta_lon, 2.0) + std::pow(sensor.delta_lat, 2.0));
-    const double dlon_rot = rot_vec_lon(sensor.delta_lon, sensor.delta_lat) / dmag;
-    const double dlat_rot = rot_vec_lat(sensor.delta_lon, sensor.delta_lat) / dmag;
+        // Find the vector/slope to find the point out the front of the car
+        const double dmag = std::sqrt(std::pow(sensor.delta_lon, 2.0) + std::pow(sensor.delta_lat, 2.0));
+        const double dlon_rot = rot_vec_lon(sensor.delta_lon, sensor.delta_lat) / dmag;
+        const double dlat_rot = rot_vec_lat(sensor.delta_lon, sensor.delta_lat) / dmag;
 
-    // Determine the increment to use in searching
-    const double incr = 2;
+        // Determine the increment to use in searching
+        const double incr = 2;
 
-    double xval = origin_x;
-    double yval = origin_y;
+        double xval = origin_x;
+        double yval = origin_y;
 
-    // Define the sensor max range
-    const double sensor_max = 50.0;
+        // Define the sensor max range
+        const double sensor_max = 50.0;
 
-    // Iterate up to the sensor max range
-    double current_dist = 0.0;
-    while (current_dist < sensor_max)
-    {
-        xval = origin_x + dlon_rot * current_dist;
-        yval = origin_y + dlat_rot * current_dist;
-
-        const RoadGrid::GridLoc* loc = tile_grid.get_for_xy(xval, yval);
-        if (loc == nullptr)
+        // Iterate up to the sensor max range
+        double current_dist = 0.0;
+        while (current_dist < sensor_max)
         {
-            break;
-        }
-        else if (!loc->tile->point_on_road(xval - loc->x, yval - loc->y))
-        {
-            break;
+            xval = origin_x + dlon_rot * current_dist;
+            yval = origin_y + dlat_rot * current_dist;
+
+            const RoadGrid::GridLoc* loc = tile_grid.get_for_xy(xval, yval);
+            if (loc == nullptr)
+            {
+                break;
+            }
+            else if (!loc->tile->point_on_road(xval - loc->x, yval - loc->y))
+            {
+                break;
+            }
+
+            current_dist += incr;
         }
 
-        current_dist += incr;
+        // Define the sensor result values
+        sensor.result.start_x = origin_x;
+        sensor.result.start_y = origin_y;
+        sensor.result.impact_x = xval;
+        sensor.result.impact_y = yval;
+        sensor.result.dist = current_dist;
     }
-
-    // Define the sensor result values
-    sensor.result.start_x = origin_x;
-    sensor.result.start_y = origin_y;
-    sensor.result.impact_x = xval;
-    sensor.result.impact_y = yval;
-    sensor.result.dist = current_dist;
 }

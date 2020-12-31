@@ -242,7 +242,7 @@ void GameState::increment_step_frequency()
     }
 }
 
-void GameState::decrement_sstep_frequency()
+void GameState::decrement_step_frequency()
 {
     if (frequency_multipler > 0)
     {

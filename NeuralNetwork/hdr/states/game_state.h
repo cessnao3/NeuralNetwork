@@ -87,7 +87,7 @@ public:
     /// Decreases the step frequency counter to a limit
     /// by a power of 10
     /// </summary>
-    void decrement_sstep_frequency();
+    void decrement_step_frequency();
 
     /// <summary>
     /// Returns the current requested step frequency
@@ -151,7 +151,7 @@ private:
     /// <summary>
     /// Defines the frequency multiplier to use to modify the game state
     /// </summary>
-    uint32_t frequency_multipler = 0;
+    uint32_t frequency_multipler = 3;
 
     /// <summary>
     /// Defines the requested forward input

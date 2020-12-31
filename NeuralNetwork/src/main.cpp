@@ -69,11 +69,23 @@ int main()
         return 1;
     }
 
+    ALLEGRO_EVENT_QUEUE* end_queue = al_create_event_queue();
+    ALLEGRO_TIMER* end_timer = al_create_timer(120);
+    al_start_timer(end_timer);
+    al_register_event_source(end_queue, al_get_timer_event_source(end_timer));
+
     // Define a loop for running
     bool running = true;
     size_t loop_val = 0;
     while (running)
     {
+        // Check for end value
+        if (!al_is_event_queue_empty(end_queue))
+        {
+            running = false;
+            break;
+        }
+
         // Define the event
         ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
@@ -102,7 +114,7 @@ int main()
                 al_set_timer_speed(car_step_timer, state.current_period());
                 break;
             case ALLEGRO_KEY_DOWN:
-                state.decrement_sstep_frequency();
+                state.decrement_step_frequency();
                 al_set_timer_speed(car_step_timer, state.current_period());
                 break;
             case ALLEGRO_KEY_HOME:
@@ -237,6 +249,9 @@ int main()
     al_destroy_timer(main_timer);
     al_destroy_timer(car_step_timer);
     al_destroy_font(font);
+
+    al_destroy_event_queue(end_queue);
+    al_destroy_timer(end_timer);
 
     // Reset Pointers
     display = nullptr;

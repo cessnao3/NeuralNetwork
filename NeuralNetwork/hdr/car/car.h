@@ -208,15 +208,6 @@ protected:
     void update_all_sensors(const RoadGrid& tile_grid);
 
     /// <summary>
-    /// Updates the given sensor value against the provided grid
-    /// </summary>
-    /// <param name="tile_grid">the tile grid to check for distance</param>
-    /// <param name="sensor">the sensor to use for checking</param>
-    void calc_sensor_dist(
-        const RoadGrid& tile_grid,
-        Sensor& sensor);
-
-    /// <summary>
     /// Constrains any input values to be within -1 and 1
     /// </summary>
     /// <param name="val">the value to constrain</param>
