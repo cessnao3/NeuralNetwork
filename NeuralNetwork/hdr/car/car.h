@@ -4,6 +4,8 @@
 #include <allegro5/allegro.h>
 #include <tiles/tile_grid.h>
 
+#include <array>
+
 /// <summary>
 /// Defines the car state object
 /// </summary>
@@ -312,9 +314,14 @@ protected:
     ALLEGRO_BITMAP* bitmap = nullptr;
 
     /// <summary>
+    /// Defines the number of sensors provided
+    /// </summary>
+    const static size_t num_sensors = 7;
+
+    /// <summary>
     /// Defines the sensor values associated with the car
     /// </summary>
-    std::vector<Sensor> sensors;
+    std::array<Sensor, num_sensors> sensors;
 };
 
 #endif

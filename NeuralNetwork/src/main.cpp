@@ -45,6 +45,7 @@ int main()
         static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_width()),
         static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_height()));
     al_set_window_title(display, "Neural Network");
+    al_set_target_bitmap(al_get_backbuffer(display));
 
     // Initialize the event queue and add events to the main queue
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -112,10 +113,12 @@ int main()
             case ALLEGRO_KEY_UP:
                 state.increment_step_frequency();
                 al_set_timer_speed(car_step_timer, state.current_period());
+                al_flush_event_queue(queue);
                 break;
             case ALLEGRO_KEY_DOWN:
                 state.decrement_step_frequency();
                 al_set_timer_speed(car_step_timer, state.current_period());
+                al_flush_event_queue(queue);
                 break;
             case ALLEGRO_KEY_HOME:
                 if (state.get_current_mode() == GameState::GameMode::BEST || state.get_current_mode() == GameState::GameMode::FILE)
@@ -155,7 +158,7 @@ int main()
                 // Draw the car sensor lines
                 for (size_t i = 0; i < car.sensor_count(); ++i)
                 {
-                    Car::SensorResult s = car.get_sensor(i);
+                    const Car::SensorResult& s = car.get_sensor(i);
                     al_draw_line(
                         s.start_x,
                         s.start_y,

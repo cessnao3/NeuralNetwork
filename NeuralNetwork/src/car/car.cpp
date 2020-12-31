@@ -10,33 +10,25 @@ const double Car::PI = 3.14159265358979323846;
 Car::Car()
 {
     // Initialize sensor values
-    const std::vector<double> delta_lons = {
+    const std::array<double, num_sensors> delta_lons = {
         1, 1, 1, 0, 0, 2, 2
     };
 
-    const std::vector<double> delta_lats = {
+    const std::array<double, num_sensors> delta_lats = {
         0, 1, -1, 1, -1, 1, -1
     };
 
-    const std::vector<bool> fronts = {
+    const std::array<bool, num_sensors> fronts = {
         true, true, true, true, true, true, true
     };
 
-    if (delta_lons.size() != delta_lats.size() ||
-        delta_lons.size() != fronts.size())
+    for (size_t i = 0; i < delta_lons.size(); ++i)
     {
-        throw std::range_error("car sensor parameters must have the same size");
-    }
-    else
-    {
-        for (size_t i = 0; i < delta_lons.size(); ++i)
-        {
-            Sensor s;
-            s.delta_lat = delta_lats[i];
-            s.delta_lon = delta_lons[i];
-            s.is_front = fronts[i];
-            sensors.push_back(s);
-        }
+        Sensor s;
+        s.delta_lat = delta_lats[i];
+        s.delta_lon = delta_lons[i];
+        s.is_front = fronts[i];
+        sensors[i] = s;
     }
 }
 
