@@ -9,7 +9,7 @@ const size_t GameState::num_turn_outputs = 10;
 const uint64_t GameState::car_step_base_frequency = 100;
 
 GameState::GameState() :
-    tile_grid(10, 6),
+    tile_grid(16, 9),
     optim_state(car.sensor_count(), num_forward_outputs + num_turn_outputs)
 {
     // Read the file result
@@ -34,8 +34,8 @@ GameState::GameState() :
     }
 
     // Define the road grid
-    const size_t row_offset = 1;
-    const size_t col_offset = 2;
+    const size_t row_offset = 0;
+    const size_t col_offset = 1;
     tile_grid.set(row_offset + 0, col_offset + 5, RoadTileManager::RoadTileType::CORNER_SW);
     tile_grid.set(row_offset + 0, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_H);
     tile_grid.set(row_offset + 0, col_offset + 3, RoadTileManager::RoadTileType::STRAIGHT_H);
@@ -281,4 +281,14 @@ double GameState::get_input_forward() const
 double GameState::get_input_right() const
 {
     return input_right;
+}
+
+uint32_t GameState::get_screen_width() const
+{
+    return tile_grid.get_width() * RoadTile::TILE_SIZE;
+}
+
+uint32_t GameState::get_screen_height() const
+{
+    return tile_grid.get_height() * RoadTile::TILE_SIZE;
 }

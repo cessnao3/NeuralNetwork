@@ -24,6 +24,32 @@
 
 #include <iomanip>
 
+void draw_background_bitmap_for_state(const GameState& state, ALLEGRO_BITMAP* background)
+{
+    al_set_target_bitmap(background);
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+    for (size_t w = 0; w < state.tile_grid.get_width(); ++w)
+    {
+        for (size_t h = 0; h < state.tile_grid.get_height(); ++h)
+        {
+            const RoadGrid::GridLoc* loc = state.tile_grid.at(h, w);
+            al_draw_bitmap(
+                loc->tile->get_bitmap(),
+                loc->x,
+                loc->y,
+                0);
+        }
+    }
+
+    const RoadGrid::GridLoc* start_loc = state.tile_grid.at(state.tile_grid.get_start_ind());
+
+    al_draw_filled_circle(
+        start_loc->get_center_x(),
+        start_loc->get_center_y(),
+        RoadTile::ROAD_WIDTH / 4.0,
+        al_map_rgb(5, 104, 57));
+}
+
 int main()
 {
     // Initialize Allegro
@@ -41,30 +67,25 @@ int main()
     state.init_bitmaps();
 
     // Initialize the display
+    const double scale_factor = 0.5;
     ALLEGRO_DISPLAY* display = al_create_display(
-        static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_width()),
-        static_cast<int>(RoadTile::TILE_SIZE * state.tile_grid.get_height()));
+        static_cast<int>(state.get_screen_width() * scale_factor),
+        static_cast<int>(state.get_screen_height() * scale_factor));
     al_set_window_title(display, "Neural Network");
+
+    // Set scale factors
+    ALLEGRO_TRANSFORM trans;
+    al_identity_transform(&trans);
+    al_scale_transform(&trans, scale_factor, scale_factor);
+    al_use_transform(&trans);
 
     // Define the background display
     ALLEGRO_BITMAP* background_bitmap = al_create_bitmap(
-        al_get_display_width(display),
-        al_get_display_height(display));
+        static_cast<int>(state.get_screen_width()),
+        static_cast<int>(state.get_screen_height()));
 
     // Draw the background display
-    al_set_target_bitmap(background_bitmap);
-    for (size_t w = 0; w < state.tile_grid.get_width(); ++w)
-    {
-        for (size_t h = 0; h < state.tile_grid.get_height(); ++h)
-        {
-            RoadGrid::GridLoc* loc = state.tile_grid.at(h, w);
-            al_draw_bitmap(
-                loc->tile->get_bitmap(),
-                loc->x,
-                loc->y,
-                0);
-        }
-    }
+    draw_background_bitmap_for_state(state, background_bitmap);
 
     // Reset to the main display
     al_set_target_bitmap(al_get_backbuffer(display));
@@ -88,7 +109,7 @@ int main()
     al_start_timer(car_step_timer);
 
     // Load the font
-    ALLEGRO_FONT* font = al_load_ttf_font("DejaVuSans.ttf", 20, 0);
+    ALLEGRO_FONT* font = al_load_ttf_font("font/DejaVuSans.ttf", 20, 0);
     if (font == nullptr)
     {
         std::cerr << "Unable to load font!" << std::endl;

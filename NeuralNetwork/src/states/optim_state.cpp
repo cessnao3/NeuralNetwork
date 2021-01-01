@@ -6,7 +6,7 @@ OptimState::OptimState(
     const size_t num_inputs,
     const size_t num_outputs)
     :
-    net_optim(NeuralNetwork::from_layers({ num_inputs, 3 * num_inputs, num_outputs })),
+    net_optim(NeuralNetwork::from_layers({ num_inputs, 2 * num_inputs, num_outputs })),
     net_best(net_optim),
     optim(num_designs, net_optim.get_links().size())
 {

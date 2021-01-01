@@ -119,6 +119,18 @@ public:
     /// <returns>right-positive car input</returns>
     double get_input_right() const;
 
+    /// <summary>
+    /// Provide the given screen width
+    /// </summary>
+    /// <returns>the screen width</returns>
+    uint32_t get_screen_width() const;
+
+    /// <summary>
+    /// Provide the given screen height
+    /// </summary>
+    /// <returns>the screen height</returns>
+    uint32_t get_screen_height() const;
+
 private:
     /// <summary>
     /// Defines the number of deliniations to use in each positive/negative
