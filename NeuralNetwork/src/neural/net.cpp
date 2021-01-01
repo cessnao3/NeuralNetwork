@@ -270,7 +270,7 @@ std::string NeuralNetwork::get_config() const
 {
     // Define the output string
     std::ostringstream output;
-    
+
     // Write the number of nodes
     output << nodes.size() << std::endl;
 
@@ -341,17 +341,17 @@ NeuralNetwork NeuralNetwork::from_config(const std::string& config)
         std::string link_str;
         input >> link_str;
 
-        auto c1 = std::find(link_str.begin(), link_str.end(), '>');
-        auto c2 = std::find(link_str.begin(), link_str.end(), '=');
+        const size_t c1 = link_str.find('>');
+        const size_t c2 = link_str.find('=');
 
-        if (c1 == link_str.end() || c2 == link_str.end())
+        if (c1 == std::string::npos || c2 == std::string::npos)
         {
             throw std::invalid_argument("unable to find either > or = delimiter in link string " + link_str);
         }
 
-        const std::string from_id_str = link_str.substr(0, c1 - link_str.begin());
-        const std::string to_id_str = link_str.substr(c1 + 1 - link_str.begin(), c2 - c1 - 1);
-        const std::string gain_str = link_str.substr(c2 + 1 - link_str.begin());
+        const std::string from_id_str = link_str.substr(0, c1);
+        const std::string to_id_str = link_str.substr(c1 + 1, c2 - c1 - 1);
+        const std::string gain_str = link_str.substr(c2 + 1);
 
         const size_t from_id = std::stol(from_id_str);
         const size_t to_id = std::stol(to_id_str);

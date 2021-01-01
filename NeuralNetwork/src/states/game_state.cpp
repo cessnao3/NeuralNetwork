@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <stdexcept>
+
 const size_t GameState::num_forward_outputs = 10;
 const size_t GameState::num_turn_outputs = 10;
 
@@ -97,7 +99,7 @@ void GameState::set_game_mode(GameMode mode)
         return;
     }
 
-    // Special consideration for file to ensure that the 
+    // Special consideration for file to ensure that the
     // neural network was successfully loaded from a file before
     // setting the file mode
     if (mode == GameMode::FILE && !file_net_loaded)
@@ -138,7 +140,7 @@ void GameState::step_state()
     // Step the network
     if (!selected_net->update_network_design())
     {
-        throw std::exception("unable to step network");
+        throw std::runtime_error("unable to step network");
     }
 
     // Set the outputs
@@ -187,7 +189,7 @@ void GameState::step_state()
     // Determine if the car is stuck
     const bool is_stuck = std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_input()) < 1e-6;
 
-    // Perform special consideration values for 
+    // Perform special consideration values for
     if (current_mode == GameMode::OPTIM)
     {
         if (car.has_collided() || car.get_step_count() > 100 * car_step_base_frequency || is_stuck)
@@ -207,7 +209,7 @@ void GameState::step_state()
                 {
                     std::ostringstream error_str;
                     error_str << "Error opening file " << fname << " for writing" << std::endl;
-                    throw std::exception(error_str.str().c_str());
+                    throw std::runtime_error(error_str.str().c_str());
                 }
             }
 

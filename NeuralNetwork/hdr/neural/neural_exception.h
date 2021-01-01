@@ -1,22 +1,22 @@
 #ifndef __IO_NEURAL_EXCEPTION__
 #define __IO_NEURAL_EXCEPTION__
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
-class neural_exception : public std::exception
+class neural_exception : public std::runtime_error
 {
 public:
     neural_exception(const char* str) :
-        std::exception(str)
+        std::runtime_error(str)
     {
         // Empty Constructor
     }
 
     neural_exception(const std::string& str) :
-        std::exception(str.c_str())
+        std::runtime_error(str.c_str())
     {
-        // Empty Constructo
+        // Empty Constructor
     }
 };
 

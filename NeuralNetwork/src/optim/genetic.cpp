@@ -19,9 +19,9 @@ void GeneticOptim::OptimStatus::reset()
 
 GeneticOptim::GeneticOptim(const size_t num_designs, const size_t num_des_var) :
     designs(num_designs, OptimStatus(num_des_var)),
+    generator(0),
     distribution(0.0, 1.0),
     index_distribution(0, num_designs - 1),
-    generator(0),
     num_des_var(num_des_var),
     current_generation(0)
 {
@@ -75,7 +75,6 @@ void GeneticOptim::update_design()
 
     double min_val = 0.0;
     double max_val = 0.0;
-    size_t max_i = 0;
 
     for (size_t i = 0; i < designs.size(); ++i)
     {
@@ -84,15 +83,9 @@ void GeneticOptim::update_design()
         {
             min_val = fv;
             max_val = fv;
-            max_i = i;
         }
         else
         {
-            if (fv > max_val)
-            {
-                max_i = i;
-            }
-
             min_val = std::min(fv, min_val);
             max_val = std::max(fv, max_val);
         }
