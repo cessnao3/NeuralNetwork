@@ -9,7 +9,6 @@ const size_t GameState::num_turn_outputs = 10;
 const uint64_t GameState::car_step_base_frequency = 100;
 
 GameState::GameState() :
-    tile_grid(16, 9),
     optim_state(car.sensor_count(), num_forward_outputs + num_turn_outputs)
 {
     // Read the file result
@@ -34,38 +33,46 @@ GameState::GameState() :
     }
 
     // Define the road grid
-    const size_t row_offset = 0;
-    const size_t col_offset = 1;
-    tile_grid.set(row_offset + 0, col_offset + 5, RoadTileManager::RoadTileType::CORNER_SW);
-    tile_grid.set(row_offset + 0, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_H);
-    tile_grid.set(row_offset + 0, col_offset + 3, RoadTileManager::RoadTileType::STRAIGHT_H);
-    tile_grid.set(row_offset + 0, col_offset + 2, RoadTileManager::RoadTileType::CORNER_SE);
-    tile_grid.set(row_offset + 1, col_offset + 2, RoadTileManager::RoadTileType::CORNER_NW);
-    tile_grid.set(row_offset + 1, col_offset + 1, RoadTileManager::RoadTileType::STRAIGHT_H);
-    tile_grid.set(row_offset + 1, col_offset + 0, RoadTileManager::RoadTileType::CORNER_SE);
-    tile_grid.set(row_offset + 2, col_offset + 0, RoadTileManager::RoadTileType::STRAIGHT_V);
-    tile_grid.set(row_offset + 3, col_offset + 0, RoadTileManager::RoadTileType::CORNER_NE);
+    {
+        const size_t row_offset = 0;
+        const size_t col_offset = 1;
 
-    //tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::CORNER_NW);
-    //tile_grid.set(row_offset + 2, col_offset + 1, RoadTileManager::RoadTileType::CORNER_SE);
-    //tile_grid.set(row_offset + 2, col_offset + 2, RoadTileManager::RoadTileType::CORNER_SW);
-    //tile_grid.set(row_offset + 3, col_offset + 2, RoadTileManager::RoadTileType::CORNER_NE);
+        RoadGrid tile_grid(16, 9);
 
-    tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::STRAIGHT_H);
-    tile_grid.set(row_offset + 3, col_offset + 2, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 5, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 0, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 3, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 2, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 1, col_offset + 2, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 1, col_offset + 1, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 1, col_offset + 0, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 2, col_offset + 0, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 3, col_offset + 0, RoadTileManager::RoadTileType::CORNER_NE);
 
-    tile_grid.set(row_offset + 3, col_offset + 3, RoadTileManager::RoadTileType::CORNER_NW);
-    tile_grid.set(row_offset + 2, col_offset + 3, RoadTileManager::RoadTileType::CORNER_SE);
-    tile_grid.set(row_offset + 2, col_offset + 4, RoadTileManager::RoadTileType::CORNER_SW);
-    tile_grid.set(row_offset + 3, col_offset + 4, RoadTileManager::RoadTileType::CORNER_NE);
-    tile_grid.set(row_offset + 3, col_offset + 5, RoadTileManager::RoadTileType::CORNER_NW);
-    tile_grid.set(row_offset + 2, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
-    tile_grid.set(row_offset + 1, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+        //tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::CORNER_NW);
+        //tile_grid.set(row_offset + 2, col_offset + 1, RoadTileManager::RoadTileType::CORNER_SE);
+        //tile_grid.set(row_offset + 2, col_offset + 2, RoadTileManager::RoadTileType::CORNER_SW);
+        //tile_grid.set(row_offset + 3, col_offset + 2, RoadTileManager::RoadTileType::CORNER_NE);
 
-    tile_grid.set_start_ind(row_offset + 2, col_offset + 0);
+        tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 3, col_offset + 2, RoadTileManager::RoadTileType::STRAIGHT_H);
+
+        tile_grid.set(row_offset + 3, col_offset + 3, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 2, col_offset + 3, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 2, col_offset + 4, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 3, col_offset + 4, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 3, col_offset + 5, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 2, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 1, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+
+        tile_grid.set_start_ind(row_offset + 2, col_offset + 0);
+
+        tile_grids.push_back(tile_grid);
+        tile_grid_index = 0;
+    }
 
     // Initialize the starting position
-    RoadGrid::GridLoc* start_pos = tile_grid.at(tile_grid.get_start_ind());
+    const RoadGrid::GridLoc* start_pos = get_tile_grid()->at(get_tile_grid()->get_start_ind());
     car.set_pos(start_pos->get_center_x(), start_pos->get_center_y());
     car.set_start_rotation(3 * car.PI / 2);
 
@@ -76,7 +83,10 @@ GameState::GameState() :
 void GameState::init_bitmaps()
 {
     car.init_bitmap();
-    tile_grid.init_bitmaps();
+    for (size_t i = 0; i < tile_grids.size(); ++i)
+    {
+        tile_grids[i].init_bitmaps();
+    }
 }
 
 void GameState::set_game_mode(GameMode mode)
@@ -172,7 +182,7 @@ void GameState::step_state()
     }
 
     // Step the car
-    car.step_movement(tile_grid, input_forward, input_right);
+    car.step_movement(*get_tile_grid(), input_forward, input_right);
 
     // Determine if the car is stuck
     const bool is_stuck = std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_input()) < 1e-6;
@@ -183,7 +193,7 @@ void GameState::step_state()
         if (car.has_collided() || car.get_step_count() > 100 * car_step_base_frequency || is_stuck)
         {
             // Check if the provided distance is better than the previous value
-            if (optim_state.check_update_best_design(car.get_distance(), car.get_average_speed()))
+            if (optim_state.check_update_best_design(car.get_distance(), car.get_average_speed()) && save_optim_network_flag)
             {
                 // Save the resulting network
                 const std::string fname = get_temp_fname();
@@ -275,20 +285,73 @@ double GameState::current_period() const
 
 double GameState::get_input_forward() const
 {
-    return input_forward;
+    if (std::abs(input_forward) < 0.001)
+    {
+        return 0.0;
+    }
+    else
+    {
+        return input_forward;
+    }
 }
 
 double GameState::get_input_right() const
 {
-    return input_right;
+    if (std::abs(input_right) < 0.001)
+    {
+        return 0.0;
+    }
+    else
+    {
+        return input_right;
+    }
 }
 
 uint32_t GameState::get_screen_width() const
 {
-    return tile_grid.get_width() * RoadTile::TILE_SIZE;
+    return get_tile_grid()->get_width() * RoadTile::TILE_SIZE;
 }
 
 uint32_t GameState::get_screen_height() const
 {
-    return tile_grid.get_height() * RoadTile::TILE_SIZE;
+    return get_tile_grid()->get_height() * RoadTile::TILE_SIZE;
+}
+
+const RoadGrid* GameState::get_tile_grid() const
+{
+    if (tile_grid_index >= tile_grids.size())
+    {
+        throw std::out_of_range("selected tile grid index is beyond the valid range");
+    }
+    else
+    {
+        return &tile_grids[tile_grid_index];
+    }
+}
+
+void GameState::set_tile_grid(const size_t ind)
+{
+    if (ind >= tile_grids.size())
+    {
+        throw std::out_of_range("cannot set tile grid beyond current range");
+    }
+    else
+    {
+        tile_grid_index = ind;
+    }
+}
+
+size_t GameState::get_num_tile_grids() const
+{
+    return tile_grids.size();
+}
+
+void GameState::toggle_save_best_networks()
+{
+    save_optim_network_flag = !save_optim_network_flag;
+}
+
+bool GameState::get_save_bets_networks_flag() const
+{
+    return save_optim_network_flag;
 }

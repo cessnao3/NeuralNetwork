@@ -28,20 +28,24 @@ void draw_background_bitmap_for_state(const GameState& state, ALLEGRO_BITMAP* ba
 {
     al_set_target_bitmap(background);
     al_clear_to_color(al_map_rgb(0, 0, 0));
-    for (size_t w = 0; w < state.tile_grid.get_width(); ++w)
+
+    const RoadGrid* grid = state.get_tile_grid();
+
+    for (size_t w = 0; w < grid->get_width(); ++w)
     {
-        for (size_t h = 0; h < state.tile_grid.get_height(); ++h)
+        for (size_t h = 0; h < grid->get_height(); ++h)
         {
-            const RoadGrid::GridLoc* loc = state.tile_grid.at(h, w);
+            const RoadGrid::GridLoc* loc = grid->at(h, w);
+            ALLEGRO_BITMAP* bmp = loc->tile->get_bitmap();
             al_draw_bitmap(
-                loc->tile->get_bitmap(),
+                bmp,
                 loc->x,
                 loc->y,
                 0);
         }
     }
 
-    const RoadGrid::GridLoc* start_loc = state.tile_grid.at(state.tile_grid.get_start_ind());
+    const RoadGrid::GridLoc* start_loc = grid->at(grid->get_start_ind());
 
     al_draw_filled_circle(
         start_loc->get_center_x(),
@@ -65,6 +69,7 @@ int main()
     // Define the game state
     GameState state;
     state.init_bitmaps();
+    state.set_tile_grid(0);
 
     // Initialize the display
     const double scale_factor = 0.5;
@@ -99,7 +104,7 @@ int main()
     ALLEGRO_EVENT_QUEUE* timer_queue = al_create_event_queue();
 
     // Define an event timer for loop
-    ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 30.0);
+    ALLEGRO_TIMER* main_timer = al_create_timer(1.0 / 60.0);
     al_register_event_source(timer_queue, al_get_timer_event_source(main_timer));
     al_start_timer(main_timer);
 
@@ -170,6 +175,10 @@ int main()
                     break;
                 case ALLEGRO_KEY_3:
                     state.set_game_mode(GameState::GameMode::FILE);
+                    break;
+                case ALLEGRO_KEY_S:
+                    state.toggle_save_best_networks();
+                    break;
                 }
                 break;
             case ALLEGRO_EVENT_TIMER:
@@ -293,6 +302,26 @@ int main()
                         20 * i,
                         0,
                         status_str.str().c_str());
+
+                    if (state.get_current_mode() == GameState::GameMode::OPTIM)
+                    {
+                        std::string save_text = "Save Networks ";
+                        if (state.get_save_bets_networks_flag())
+                        {
+                            save_text += "On";
+                        }
+                        else
+                        {
+                            save_text += "Off";
+                        }
+                        al_draw_text(
+                            font,
+                            al_map_rgb(0, 0, 0),
+                            state.get_screen_width() - 10,
+                            0,
+                            ALLEGRO_ALIGN_RIGHT,
+                            save_text.c_str());
+                    }
                 }
 
                 // Flip the Display Buffer

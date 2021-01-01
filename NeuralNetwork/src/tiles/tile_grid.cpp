@@ -36,6 +36,7 @@ RoadGrid::RoadGrid(size_t width, size_t height) :
 void RoadGrid::init_bitmaps()
 {
     manager.init_bitmaps();
+    reset_tile_pointers();
 }
 
 void RoadGrid::reset_tile_pointers()

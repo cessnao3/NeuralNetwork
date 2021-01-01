@@ -48,6 +48,11 @@ public:
     /// </summary>
     void init_bitmaps();
 
+    /// <summary>
+    /// Updates all pointers to new locations after moving or copying the object
+    /// </summary>
+    void update_pointers();
+
 private:
     /// <summary>
     /// Stores all tile types for easy retrieval

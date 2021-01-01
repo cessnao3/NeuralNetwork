@@ -131,6 +131,35 @@ public:
     /// <returns>the screen height</returns>
     uint32_t get_screen_height() const;
 
+    /// <summary>
+    /// Provides the currently-selected tile grid
+    /// </summary>
+    /// <returns>a pointer to the currently-selected instance</returns>
+    const RoadGrid* get_tile_grid() const;
+
+    /// <summary>
+    /// Sets the tile grid instance value
+    /// </summary>
+    /// <param name="ind">the index to set</param>
+    void set_tile_grid(const size_t ind);
+
+    /// <summary>
+    /// Returns the total number of tile grid instances
+    /// </summary>
+    /// <returns>the total number of tile grid instances</returns>
+    size_t get_num_tile_grids() const;
+
+    /// <summary>
+    /// Toggles whether to save the best network values
+    /// </summary>
+    void toggle_save_best_networks();
+
+    /// <summary>
+    /// Returns whether best networks should be saved
+    /// </summary>
+    /// <returns>True if networks should be saved</returns>
+    bool get_save_bets_networks_flag() const;
+
 private:
     /// <summary>
     /// Defines the number of deliniations to use in each positive/negative
@@ -153,7 +182,12 @@ public:
     /// <summary>
     /// Defines the tile grid to use for the map
     /// </summary>
-    RoadGrid tile_grid;
+    std::vector<RoadGrid> tile_grids;
+
+    /// <summary>
+    /// Provides the currently-selected tile grid instance
+    /// </summary>
+    size_t tile_grid_index = 0;
 
     /// <summary>
     /// Defines the optimization state
@@ -191,6 +225,11 @@ private:
     /// Defines whether the network file was loaded successfully
     /// </summary>
     bool file_net_loaded = false;
+
+    /// <summary>
+    /// Determines whether to save the next best value
+    /// </summary>
+    bool save_optim_network_flag = false;
 
     /// <summary>
     /// Define sthe current game mode
