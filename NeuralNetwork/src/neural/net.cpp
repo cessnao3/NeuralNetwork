@@ -51,7 +51,7 @@ NeuralNetwork NeuralNetwork::from_layers(const std::vector<size_t>& layers)
     return net;
 }
 
-bool NeuralNetwork::update_network_design()
+bool NeuralNetwork::step_network()
 {
     // Return false if the layer size is less than two
     //   for no layers, or input layer is also output layer

@@ -138,7 +138,7 @@ void GameState::step_state()
     }
 
     // Step the network
-    if (!selected_net->update_network_design())
+    if (!selected_net->step_network())
     {
         throw std::runtime_error("unable to step network");
     }
