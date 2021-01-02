@@ -141,13 +141,19 @@ public:
     /// Sets the tile grid instance value
     /// </summary>
     /// <param name="ind">the index to set</param>
-    void set_tile_grid(const size_t ind);
+    void set_tile_grid_index(const size_t ind);
 
     /// <summary>
     /// Returns the total number of tile grid instances
     /// </summary>
     /// <returns>the total number of tile grid instances</returns>
-    size_t get_num_tile_grids() const;
+    size_t get_tile_grid_count() const;
+
+    /// <summary>
+    /// Returns the current index of the selected tile grid
+    /// </summary>
+    /// <returns>current selected index</returns>
+    size_t get_tile_grid_index() const;
 
     /// <summary>
     /// Toggles whether to save the best network values
@@ -235,6 +241,16 @@ private:
     /// Define sthe current game mode
     /// </summary>
     GameMode current_mode = GameMode::OPTIM;
+
+    /// <summary>
+    /// Defines the width of the tile grids
+    /// </summary>
+    const static size_t tile_grid_width;
+
+    /// <summary>
+    /// Defines the height of the tile grids
+    /// </summary>
+    const static size_t tile_grid_height;
 };
 
 #endif

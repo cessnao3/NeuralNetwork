@@ -10,6 +10,9 @@ const size_t GameState::num_turn_outputs = 10;
 
 const uint64_t GameState::car_step_base_frequency = 100;
 
+const size_t GameState::tile_grid_width = 16;
+const size_t GameState::tile_grid_height = 9;
+
 GameState::GameState() :
     optim_state(car.sensor_count(), num_forward_outputs + num_turn_outputs)
 {
@@ -70,8 +73,16 @@ GameState::GameState() :
         tile_grid.set_start_ind(row_offset + 2, col_offset + 0);
 
         tile_grids.push_back(tile_grid);
-        tile_grid_index = 0;
     }
+
+    {
+        RoadGrid tile_grid(16, 9);
+
+        tile_grids.push_back(tile_grid);
+    }
+
+    // Initialize the tile grid values to the first grid
+    tile_grid_index = 0;
 
     // Initialize the starting position
     const RoadGrid::GridLoc* start_pos = get_tile_grid()->at(get_tile_grid()->get_start_ind());
@@ -331,7 +342,7 @@ const RoadGrid* GameState::get_tile_grid() const
     }
 }
 
-void GameState::set_tile_grid(const size_t ind)
+void GameState::set_tile_grid_index(const size_t ind)
 {
     if (ind >= tile_grids.size())
     {
@@ -343,9 +354,14 @@ void GameState::set_tile_grid(const size_t ind)
     }
 }
 
-size_t GameState::get_num_tile_grids() const
+size_t GameState::get_tile_grid_count() const
 {
     return tile_grids.size();
+}
+
+size_t GameState::get_tile_grid_index() const
+{
+    return tile_grid_index;
 }
 
 void GameState::toggle_save_best_networks()

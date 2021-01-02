@@ -26,6 +26,8 @@
 
 void draw_background_bitmap_for_state(const GameState& state, ALLEGRO_BITMAP* background)
 {
+    ALLEGRO_BITMAP* prev_target = al_get_target_bitmap();
+
     al_set_target_bitmap(background);
     al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -52,6 +54,8 @@ void draw_background_bitmap_for_state(const GameState& state, ALLEGRO_BITMAP* ba
         start_loc->get_center_y(),
         RoadTile::ROAD_WIDTH / 4.0,
         al_map_rgb(5, 104, 57));
+
+    al_set_target_bitmap(prev_target);
 }
 
 int main()
@@ -69,7 +73,7 @@ int main()
     // Define the game state
     GameState state;
     state.init_bitmaps();
-    state.set_tile_grid(0);
+    state.set_tile_grid_index(0);
 
     // Initialize the display
     const double scale_factor = 0.5;
@@ -91,9 +95,6 @@ int main()
 
     // Draw the background display
     draw_background_bitmap_for_state(state, background_bitmap);
-
-    // Reset to the main display
-    al_set_target_bitmap(al_get_backbuffer(display));
 
     // Initialize the event queue and add events to the main queue
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
@@ -178,6 +179,11 @@ int main()
                     break;
                 case ALLEGRO_KEY_S:
                     state.toggle_save_best_networks();
+                    break;
+                case ALLEGRO_KEY_N:
+                    state.set_tile_grid_index((state.get_tile_grid_index() + 1) % state.get_tile_grid_count());
+                    draw_background_bitmap_for_state(state, background_bitmap);
+                    state.reset_car();
                     break;
                 }
                 break;
