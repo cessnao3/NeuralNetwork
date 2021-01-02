@@ -114,7 +114,7 @@ int main()
     al_start_timer(car_step_timer);
 
     // Load the font
-    ALLEGRO_FONT* font = al_load_ttf_font("font/DejaVuSans.ttf", 20, 0);
+    ALLEGRO_FONT* font = al_load_ttf_font("font/DejaVuSansMono.ttf", 20, 0);
     if (font == nullptr)
     {
         std::cerr << "Unable to load font!" << std::endl;
@@ -268,10 +268,10 @@ int main()
                         }
                         break;
                     case 1:
-                        status_str << "Forward: " << state.get_input_forward();
+                        status_str << "Forward: " << std::setw(4) << state.get_input_forward();
                         break;
                     case 2:
-                        status_str << "Right:   " << state.get_input_right();
+                        status_str << "Right:   " << std::setw(4) << state.get_input_right();
                         break;
                     case 3:
                         if (state.get_current_mode() == GameState::GameMode::OPTIM)
@@ -303,6 +303,18 @@ int main()
                         0,
                         status_str.str().c_str());
 
+                    {
+                        std::ostringstream speed_text;
+                        speed_text << "Average Speed: " << std::setw(5) << std::setprecision(2) << state.car.get_average_speed();
+                        al_draw_text(
+                            font,
+                            al_map_rgb(0, 0, 0),
+                            state.get_screen_width() - 10,
+                            0,
+                            ALLEGRO_ALIGN_RIGHT,
+                            speed_text.str().c_str());
+                    }
+
                     if (state.get_current_mode() == GameState::GameMode::OPTIM)
                     {
                         std::string save_text = "Save Networks ";
@@ -318,7 +330,7 @@ int main()
                             font,
                             al_map_rgb(0, 0, 0),
                             state.get_screen_width() - 10,
-                            0,
+                            20,
                             ALLEGRO_ALIGN_RIGHT,
                             save_text.c_str());
                     }
