@@ -88,6 +88,18 @@ public:
     /// <returns>the number of times update_population has been called</returns>
     size_t get_generation() const;
 
+    /// <summary>
+    /// Initializes the population to random values within the upper and lower bound values
+    /// </summary>
+    void init_population();
+
+    /// <summary>
+    /// Innitializes the population to random values roughtly surrounding
+    /// the given design varaibles
+    /// </summary>
+    /// <param name="other">the design variables to target around</param>
+    void init_population(const std::vector<double>& other);
+
 protected:
     /// <summary>
     /// Obtains a random number to assign to a design variable between the
@@ -95,6 +107,13 @@ protected:
     /// </summary>
     /// <returns>uniform random number between the upper and lower bounds</returns>
     double get_random();
+
+    /// <summary>
+    /// Constrains the input value between the upper and lower bound
+    /// </summary>
+    /// <param name="val">value to constrain</param>
+    /// <returns>constrained value</returns>
+    double constrain_value(const double val) const;
 
 protected:
     /// <summary>

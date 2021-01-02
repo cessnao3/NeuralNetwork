@@ -73,7 +73,7 @@ int main()
     // Define the game state
     GameState state;
     state.init_bitmaps();
-    state.set_tile_grid_index(0);
+    //state.set_tile_grid_index(0);
 
     // Initialize the display
     const double scale_factor = 0.5;

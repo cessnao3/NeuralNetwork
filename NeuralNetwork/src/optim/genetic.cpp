@@ -17,7 +17,9 @@ void GeneticOptim::OptimStatus::reset()
     fitness = 0.0;
 }
 
-GeneticOptim::GeneticOptim(const size_t num_designs, const size_t num_des_var) :
+GeneticOptim::GeneticOptim(
+    const size_t num_designs,
+    const size_t num_des_var) :
     designs(num_designs, OptimStatus(num_des_var)),
     generator(0),
     distribution(0.0, 1.0),
@@ -25,16 +27,43 @@ GeneticOptim::GeneticOptim(const size_t num_designs, const size_t num_des_var) :
     num_des_var(num_des_var),
     current_generation(0)
 {
+    // Check for valid inputs
     if (num_designs == 0 || num_des_var == 0)
     {
         throw std::invalid_argument("population and design variables must be positive");
     }
 
+    // Define the random initial population values
+    init_population();
+}
+
+void GeneticOptim::init_population()
+{
+    // Loop through each design
     for (size_t i = 0; i < designs.size(); ++i)
     {
+        // Define a new random variable for each design variable
         for (size_t j = 0; j < designs[i].design_variables.size(); ++j)
         {
             designs[i].design_variables[j] = get_random();
+        }
+    }
+}
+
+void GeneticOptim::init_population(const std::vector<double>& other)
+{
+    if (other.size() != design_variable_count())
+    {
+        throw std::invalid_argument("input design variable size does not match between init vector and optimizer");
+    }
+
+    // Loop through each design
+    for (size_t i = 0; i < designs.size(); ++i)
+    {
+        // Define a new design variable within 25% of the previous value, limiting the results
+        for (size_t j = 0; j < designs[i].design_variables.size(); ++j)
+        {
+            designs[i].design_variables[j] = constrain_value(other[j] + 0.25 * get_random());
         }
     }
 }
@@ -142,13 +171,18 @@ void GeneticOptim::update_design()
             desvar += get_random() * 0.1;
 
             // Limit the design variable to the upper and lower bounds
-            desvar = std::min(upper_bound, std::max(lower_bound, desvar));
+            desvar = constrain_value(desvar);
         }
     }
 
     // Reset the status values
     designs = new_population;
     current_generation += 1;
+}
+
+double GeneticOptim::constrain_value(const double val) const
+{
+    return std::min(upper_bound, std::max(lower_bound, val));
 }
 
 size_t GeneticOptim::design_variable_count() const

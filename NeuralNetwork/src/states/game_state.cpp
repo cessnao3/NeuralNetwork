@@ -78,11 +78,125 @@ GameState::GameState() :
     {
         RoadGrid tile_grid(16, 9);
 
+        const size_t row_offset = 0;
+        const size_t col_offset = 0;
+
+        tile_grid.set(row_offset + 1, col_offset + 1, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 1, col_offset + 2, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 1, col_offset + 3, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 0, col_offset + 3, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 0, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 6, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 7, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 8, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 9, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 10, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 11, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 12, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 13, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 14, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 0, col_offset + 15, RoadTileManager::RoadTileType::CORNER_SW);
+
+        tile_grid.set(row_offset + 1, col_offset + 15, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 1, col_offset + 14, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 1, col_offset + 13, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 1, col_offset + 12, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 2, col_offset + 12, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 2, col_offset + 11, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 1, col_offset + 11, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 1, col_offset + 10, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 1, col_offset + 9, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 2, col_offset + 9, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 2, col_offset + 8, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 3, col_offset + 8, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 3, col_offset + 7, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 4, col_offset + 7, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 4, col_offset + 6, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 5, col_offset + 6, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 5, col_offset + 7, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 5, col_offset + 8, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 4, col_offset + 8, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 4, col_offset + 9, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 3, col_offset + 9, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 3, col_offset + 10, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 3, col_offset + 11, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 3, col_offset + 12, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 3, col_offset + 13, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 2, col_offset + 13, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 2, col_offset + 14, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 2, col_offset + 15, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 3, col_offset + 15, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 3, col_offset + 14, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 4, col_offset + 14, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 4, col_offset + 15, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 5, col_offset + 15, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 5, col_offset + 14, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 5, col_offset + 13, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 4, col_offset + 13, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 4, col_offset + 12, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 4, col_offset + 11, RoadTileManager::RoadTileType::STRAIGHT_H);
+
+        tile_grid.set(row_offset + 4, col_offset + 10, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 5, col_offset + 10, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 6, col_offset + 10, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 6, col_offset + 11, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 6, col_offset + 12, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 6, col_offset + 13, RoadTileManager::RoadTileType::STRAIGHT_H);
+
+        tile_grid.set(row_offset + 6, col_offset + 14, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 7, col_offset + 14, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 7, col_offset + 15, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 8, col_offset + 15, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 8, col_offset + 14, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 8, col_offset + 13, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 7, col_offset + 13, RoadTileManager::RoadTileType::CORNER_SW);
+
+        tile_grid.set(row_offset + 7, col_offset + 12, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 11, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 10, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 9, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 8, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 7, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 6, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 7, col_offset + 5, RoadTileManager::RoadTileType::CORNER_NE);
+
+        tile_grid.set(row_offset + 6, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 5, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 4, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 3, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 2, col_offset + 5, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 2, col_offset + 6, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 1, col_offset + 6, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 1, col_offset + 5, RoadTileManager::RoadTileType::STRAIGHT_H);
+        tile_grid.set(row_offset + 1, col_offset + 4, RoadTileManager::RoadTileType::CORNER_SE);
+
+        tile_grid.set(row_offset + 2, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 3, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 4, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 5, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 6, col_offset + 4, RoadTileManager::RoadTileType::STRAIGHT_V);
+        tile_grid.set(row_offset + 7, col_offset + 4, RoadTileManager::RoadTileType::CORNER_NW);
+
+        tile_grid.set(row_offset + 7, col_offset + 3, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 6, col_offset + 3, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 6, col_offset + 2, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 5, col_offset + 2, RoadTileManager::RoadTileType::CORNER_SW);
+        tile_grid.set(row_offset + 5, col_offset + 1, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 4, col_offset + 1, RoadTileManager::RoadTileType::CORNER_SW);
+
+        tile_grid.set(row_offset + 4, col_offset + 0, RoadTileManager::RoadTileType::CORNER_NE);
+        tile_grid.set(row_offset + 3, col_offset + 0, RoadTileManager::RoadTileType::CORNER_SE);
+        tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::CORNER_NW);
+        tile_grid.set(row_offset + 2, col_offset + 1, RoadTileManager::RoadTileType::STRAIGHT_V);
+
+        tile_grid.set_start_ind(row_offset + 2, col_offset + 1);
+
         tile_grids.push_back(tile_grid);
     }
 
     // Initialize the tile grid values to the first grid
-    tile_grid_index = 0;
+    tile_grid_index = 1;
 
     // Initialize the starting position
     const RoadGrid::GridLoc* start_pos = get_tile_grid()->at(get_tile_grid()->get_start_ind());
@@ -322,12 +436,12 @@ double GameState::get_input_right() const
 
 uint32_t GameState::get_screen_width() const
 {
-    return get_tile_grid()->get_width() * RoadTile::TILE_SIZE;
+    return static_cast<uint32_t>(get_tile_grid()->get_width() * RoadTile::TILE_SIZE);
 }
 
 uint32_t GameState::get_screen_height() const
 {
-    return get_tile_grid()->get_height() * RoadTile::TILE_SIZE;
+    return static_cast<uint32_t>(get_tile_grid()->get_height() * RoadTile::TILE_SIZE);
 }
 
 const RoadGrid* GameState::get_tile_grid() const
