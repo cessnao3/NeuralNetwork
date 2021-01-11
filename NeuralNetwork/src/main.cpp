@@ -58,6 +58,38 @@ void draw_background_bitmap_for_state(const GameState& state, ALLEGRO_BITMAP* ba
     al_set_target_bitmap(prev_target);
 }
 
+ALLEGRO_DISPLAY* create_display(const GameState& state, bool fullscreen, ALLEGRO_TRANSFORM* transform)
+{
+    // Define the default scale factor
+    double scale_factor = 0.0;
+
+    // Apply options and adjust parameters for fullscreen or not
+    if (fullscreen)
+    {
+        al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+        scale_factor = 1.0;
+    }
+    else
+    {
+        al_set_new_display_flags(ALLEGRO_WINDOWED);
+        scale_factor = 0.75;
+    }
+
+    // Create the display
+    ALLEGRO_DISPLAY* display = al_create_display(
+        static_cast<int>(state.get_screen_width() * scale_factor),
+        static_cast<int>(state.get_screen_height() * scale_factor));
+    al_set_window_title(display, "Neural Network");
+
+    // Update the transformation
+    al_identity_transform(transform);
+    al_scale_transform(transform, scale_factor, scale_factor);
+    al_use_transform(transform);
+
+    // Return the display
+    return display;
+}
+
 int main()
 {
     // Initialize Allegro
@@ -76,17 +108,12 @@ int main()
     //state.set_tile_grid_index(0);
 
     // Initialize the display
-    const double scale_factor = 0.5;
-    ALLEGRO_DISPLAY* display = al_create_display(
-        static_cast<int>(state.get_screen_width() * scale_factor),
-        static_cast<int>(state.get_screen_height() * scale_factor));
-    al_set_window_title(display, "Neural Network");
-
-    // Set scale factors
-    ALLEGRO_TRANSFORM trans;
-    al_identity_transform(&trans);
-    al_scale_transform(&trans, scale_factor, scale_factor);
-    al_use_transform(&trans);
+    bool is_fullscreen = false;
+    ALLEGRO_TRANSFORM display_transform;
+    ALLEGRO_DISPLAY* display = create_display(
+        state,
+        is_fullscreen,
+        &display_transform);
 
     // Define the background display
     ALLEGRO_BITMAP* background_bitmap = al_create_bitmap(
@@ -110,7 +137,7 @@ int main()
     al_start_timer(main_timer);
 
     // Define an event timer for the physics step
-    ALLEGRO_TIMER* car_step_timer = al_create_timer(state.current_period());
+    ALLEGRO_TIMER* car_step_timer = al_create_timer(state.base_period());
     al_register_event_source(timer_queue, al_get_timer_event_source(car_step_timer));
     al_start_timer(car_step_timer);
 
@@ -122,13 +149,11 @@ int main()
         return 1;
     }
 
-    ALLEGRO_TIMER* end_timer = al_create_timer(60);
-    //al_start_timer(end_timer);
-    al_register_event_source(queue, al_get_timer_event_source(end_timer));
+    // Initialize the game bitmaps
+    state.init_bitmaps();
 
     // Define a loop for running
     bool running = true;
-    size_t loop_val = 0;
     while (running)
     {
         // Define the event
@@ -154,13 +179,9 @@ int main()
                     break;
                 case ALLEGRO_KEY_UP:
                     state.increment_step_frequency();
-                    al_set_timer_speed(car_step_timer, state.current_period());
-                    al_flush_event_queue(queue);
                     break;
                 case ALLEGRO_KEY_DOWN:
                     state.decrement_step_frequency();
-                    al_set_timer_speed(car_step_timer, state.current_period());
-                    al_flush_event_queue(queue);
                     break;
                 case ALLEGRO_KEY_HOME:
                     if (state.get_current_mode() == GameState::GameMode::BEST || state.get_current_mode() == GameState::GameMode::FILE)
@@ -185,13 +206,29 @@ int main()
                     draw_background_bitmap_for_state(state, background_bitmap);
                     state.reset_car();
                     break;
+                case ALLEGRO_KEY_P:
+                    if (al_get_timer_started(car_step_timer))
+                    {
+                        al_stop_timer(car_step_timer);
+                    }
+                    else
+                    {
+                        al_start_timer(car_step_timer);
+                    }
+                    break;
+                case ALLEGRO_KEY_F:
+                    al_destroy_display(display);
+                    is_fullscreen = !is_fullscreen;
+                    display = create_display(state, is_fullscreen, &display_transform);
                 }
                 break;
             case ALLEGRO_EVENT_TIMER:
+                /*
                 if (event.timer.source == end_timer)
                 {
                     running = false;
                 }
+                */
                 break;
             }
 
@@ -204,15 +241,6 @@ int main()
 
         // Get the main timer event queue event
         al_wait_for_event(timer_queue, &event);
-
-        // Update the loop value
-        loop_val = (loop_val + 1) % 10;
-
-        // Clear/flush the event queue if requested
-        if (loop_val == 0)
-        {
-            al_flush_event_queue(timer_queue);
-        }
 
         // Switch cast
         switch (event.type)
@@ -321,6 +349,19 @@ int main()
                             speed_text.str().c_str());
                     }
 
+                    {
+                        std::ostringstream output;
+                        output << "Time Multiplier: " << state.get_frequency_multiplier();
+
+                        al_draw_text(
+                            font,
+                            al_map_rgb(0, 0, 0),
+                            state.get_screen_width() - 10,
+                            20,
+                            ALLEGRO_ALIGN_RIGHT,
+                            output.str().c_str());
+                    }
+
                     if (state.get_current_mode() == GameState::GameMode::OPTIM)
                     {
                         std::string save_text = "Save Networks ";
@@ -336,9 +377,23 @@ int main()
                             font,
                             al_map_rgb(0, 0, 0),
                             state.get_screen_width() - 10,
-                            20,
+                            40,
                             ALLEGRO_ALIGN_RIGHT,
                             save_text.c_str());
+                    }
+
+                    if (state.get_current_mode() == GameState::GameMode::OPTIM)
+                    {
+                        std::ostringstream output;
+                        output << "Delta Distance: " << car.get_delta_distance();
+
+                        al_draw_text(
+                            font,
+                            al_map_rgb(0, 0, 0),
+                            state.get_screen_width() - 10,
+                            60,
+                            ALLEGRO_ALIGN_RIGHT,
+                            output.str().c_str());
                     }
                 }
 
@@ -361,8 +416,6 @@ int main()
     al_destroy_timer(main_timer);
     al_destroy_timer(car_step_timer);
     al_destroy_font(font);
-
-    al_destroy_timer(end_timer);
 
     // Reset Pointers
     display = nullptr;

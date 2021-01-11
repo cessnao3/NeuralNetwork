@@ -53,6 +53,10 @@ public:
     /// </summary>
     void step_state();
 
+private:
+    void step_state_inner();
+
+public:
     /// <summary>
     /// Provides the current game mode
     /// </summary>
@@ -96,16 +100,16 @@ public:
     void decrement_step_frequency();
 
     /// <summary>
-    /// Returns the current requested step frequency
+    /// Provides the base period of the game state
     /// </summary>
-    /// <returns>the requested step frequency, in Hz</returns>
-    uint64_t current_frequency() const;
+    /// <returns>base period, in seconds</returns>
+    double base_period() const;
 
     /// <summary>
-    /// Returns the current requested step period
+    /// Provides the current frequency multiplier
     /// </summary>
-    /// <returns>the requested step period, in seconds</returns>
-    double current_period() const;
+    /// <returns>the frequency multiplier</returns>
+    uint32_t get_frequency_multiplier() const;
 
     /// <summary>
     /// Provides the current requested car input forward

@@ -136,6 +136,18 @@ public:
     double get_distance() const;
 
     /// <summary>
+    /// Obtains the delta difference in the car distance between steps
+    /// </summary>
+    /// <returns>the delta difference in the car's position between this and the previous step</returns>
+    double get_delta_distance() const;
+
+    /// <summary>
+    /// Obtains the requested period for each timestep
+    /// </summary>
+    /// <returns>the period requested for steps, in seconds</returns>
+    double step_period() const;
+
+    /// <summary>
     /// Obtains the sensor result value for the given sensor number and road grid
     /// </summary>
     /// <param name="sensor_num">the sensor number of check</param>
@@ -159,6 +171,18 @@ public:
     /// </summary>
     /// <returns>the average speed since the last reset</returns>
     double get_average_speed() const;
+
+    /// <summary>
+    /// Returns the maximum turn input provided since reset to the right
+    /// </summary>
+    /// <returns>the maximum right turn input value since last reset</returns>
+    double get_max_turn_right() const;
+
+    /// <summary>
+    /// Returns the maximum turn input provided since reset to the left
+    /// </summary>
+    /// <returns>the maximum left turn input value since last reset</returns>
+    double get_max_turn_left() const;
 
     /// <summary>
     /// Returns the step count since reset
@@ -283,6 +307,11 @@ protected:
     double distance = 0.0;
 
     /// <summary>
+    /// Defines the previous distance the car has traveled, or 0 if reset
+    /// </summary>
+    double distance_prev = 0.0;
+
+    /// <summary>
     /// Defines the previous input used to track forward movement
     /// </summary>
     double input_forward_prev = 0.0;
@@ -302,6 +331,16 @@ protected:
     /// Stores an overall average of the car's speed
     /// </summary>
     double average_speed = 0.0;
+
+    /// <summary>
+    /// Stores the maximum right turn value used in the solution
+    /// </summary>
+    double max_turn_right = 0.0;
+
+    /// <summary>
+    /// Stores the maximum left turn value used in the solution
+    /// </summary>
+    double max_turn_left = 0.0;
 
     /// <summary>
     /// Flag to track if the car has collided with something or not

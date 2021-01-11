@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-const double GeneticOptim::lower_bound = -1.0;
-const double GeneticOptim::upper_bound = 1.0;
+const double GeneticOptim::lower_bound = -100.0;
+const double GeneticOptim::upper_bound = 100.0;
 
 GeneticOptim::OptimStatus::OptimStatus(const size_t num_vars) :
     design_variables(num_vars, 0.0),
@@ -22,7 +22,8 @@ GeneticOptim::GeneticOptim(
     const size_t num_des_var) :
     designs(num_designs, OptimStatus(num_des_var)),
     generator(0),
-    distribution(0.0, 1.0),
+    distribution(lower_bound, upper_bound),
+    mutation_distribution(-1.0, 1.0),
     index_distribution(0, num_designs - 1),
     num_des_var(num_des_var),
     current_generation(0)
@@ -63,7 +64,7 @@ void GeneticOptim::init_population(const std::vector<double>& other)
         // Define a new design variable within 25% of the previous value, limiting the results
         for (size_t j = 0; j < designs[i].design_variables.size(); ++j)
         {
-            designs[i].design_variables[j] = constrain_value(other[j] + 0.25 * get_random());
+            designs[i].design_variables[j] = constrain_value(other[j] + 0.25 * get_mutation_random());
         }
     }
 }
@@ -97,7 +98,7 @@ void GeneticOptim::set_design_fitness(const size_t ind, const double val)
     }
 }
 
-void GeneticOptim::update_design()
+void GeneticOptim::update_designs()
 {
     std::vector<size_t> combination_group(designs.size() * 2, 0);
     std::vector<OptimStatus> new_population(designs.size(), OptimStatus(num_des_var));
@@ -142,7 +143,7 @@ void GeneticOptim::update_design()
     for (size_t i = 0; i < designs.size(); ++i)
     {
         // Define weights
-        const double w1 = 0.75;
+        const double w1 = 0.5;
         const double w2 = 1.0 - w1;
 
         // Define the two value indices
@@ -168,7 +169,8 @@ void GeneticOptim::update_design()
             desvar = w1 * val_max.design_variables[j] + w2 * val_min.design_variables[j];
 
             // Provide some mutation into the design variable
-            desvar += get_random() * 0.1;
+            const double mutation = get_mutation_random() * 0.15 * (upper_bound - lower_bound);
+            desvar += mutation;
 
             // Limit the design variable to the upper and lower bounds
             desvar = constrain_value(desvar);
@@ -197,5 +199,10 @@ size_t GeneticOptim::get_generation() const
 
 double GeneticOptim::get_random()
 {
-    return lower_bound + distribution(generator) * (upper_bound - lower_bound);
+    return distribution(generator);
+}
+
+double GeneticOptim::get_mutation_random()
+{
+    return mutation_distribution(generator);
 }

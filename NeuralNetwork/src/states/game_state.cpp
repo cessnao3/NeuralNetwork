@@ -5,16 +5,22 @@
 
 #include <stdexcept>
 
-const size_t GameState::num_forward_outputs = 10;
-const size_t GameState::num_turn_outputs = 10;
+#include <cmath>
+
+#include <cassert>
+
+const size_t GameState::num_forward_outputs = 2;
+const size_t GameState::num_turn_outputs = 2;
 
 const uint64_t GameState::car_step_base_frequency = 100;
 
 const size_t GameState::tile_grid_width = 16;
 const size_t GameState::tile_grid_height = 9;
 
+static const bool include_inverse = false;
+
 GameState::GameState() :
-    optim_state(car.sensor_count(), num_forward_outputs + num_turn_outputs)
+    optim_state(car.sensor_count() * (include_inverse ? 2 : 1), num_forward_outputs + num_turn_outputs)
 {
     // Read the file result
     file_net_loaded = false;
@@ -196,12 +202,12 @@ GameState::GameState() :
     }
 
     // Initialize the tile grid values to the first grid
-    tile_grid_index = 1;
+    tile_grid_index = 0;
 
     // Initialize the starting position
     const RoadGrid::GridLoc* start_pos = get_tile_grid()->at(get_tile_grid()->get_start_ind());
     car.set_pos(start_pos->get_center_x(), start_pos->get_center_y());
-    car.set_start_rotation(3 * car.PI / 2);
+    car.set_start_rotation(1 * car.PI / 2);
 
     // Reset the car
     reset_car();
@@ -247,6 +253,14 @@ void GameState::reset_car()
 
 void GameState::step_state()
 {
+    for (uint64_t i = 0; i < std::pow(10, frequency_multipler); ++i)
+    {
+        step_state_inner();
+    }
+}
+
+void GameState::step_state_inner()
+{
     // Update the optimization step
     if (optim_state.update_network_design())
     {
@@ -256,10 +270,22 @@ void GameState::step_state()
     // Extract the current network
     NeuralNetwork* selected_net = get_selected_network();
 
-    // Set the input sizes
+    // Set the input sensor and inverse sensor inputs
     for (size_t i = 0; i < car.sensor_count(); ++i)
     {
-        selected_net->set_input(i, car.get_sensor(i).dist);
+        const double dist_val = car.get_sensor(i).dist;
+        if (!selected_net->set_input(i, dist_val))
+        {
+            assert(false);
+        }
+
+        if (include_inverse)
+        {
+            if (!selected_net->set_input(car.sensor_count() + i, 1.0 - dist_val))
+            {
+                assert(false);
+            }
+        }
     }
 
     // Step the network
@@ -274,37 +300,33 @@ void GameState::step_state()
 
     for (size_t i = 0; i < num_forward_outputs; ++i)
     {
-        double val;
-        const double add_val = 1.0 / num_forward_outputs;
-        const double thresh = 0.5;
-        if (selected_net->get_output(0 + i, val) && val > 0.5)
+        const bool is_neg = i % 2 == 0;
+
+        double val = 0.0;
+        if (selected_net->get_output(i, val))
         {
-            if (val > thresh)
+            if (is_neg)
             {
-                input_forward += add_val;
+                val = -val;
             }
-            else if (val < -thresh)
-            {
-                input_forward -= add_val;
-            }
+
+            input_forward += val / static_cast<double>(num_forward_outputs) / 0.5;
         }
     }
 
     for (size_t i = 0; i < num_turn_outputs; ++i)
     {
-        double val;
-        const double add_val = 1.0 / num_turn_outputs;
-        const double thresh = 0.5;
+        const bool is_neg = i % 2 == 0;
+
+        double val = 0.0;
         if (selected_net->get_output(num_forward_outputs + i, val))
         {
-            if (val > thresh)
+            if (is_neg)
             {
-                input_right += add_val;
+                val = -val;
             }
-            else if (val < thresh)
-            {
-                input_right -= add_val;
-            }
+
+            input_right += val / static_cast<double>(num_turn_outputs) / 0.5;
         }
     }
 
@@ -312,15 +334,17 @@ void GameState::step_state()
     car.step_movement(*get_tile_grid(), input_forward, input_right);
 
     // Determine if the car is stuck
-    const bool is_stuck = std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_input()) < 1e-6;
+    const bool is_stuck = std::abs(car.get_forward_input()) < 1e-3 || car.get_distance() < -10.0;
+        //(std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_input()) < 1e-6);// ||
+        //(std::abs(car.get_delta_distance() < 0.05) && car.get_step_count() * car.step_period() > 3.0);
 
     // Perform special consideration values for
     if (current_mode == GameMode::OPTIM)
     {
-        if (car.has_collided() || car.get_step_count() > 100 * car_step_base_frequency || is_stuck)
+        if (car.has_collided() || car.get_step_count() > 300 * car_step_base_frequency || is_stuck)
         {
             // Check if the provided distance is better than the previous value
-            if (optim_state.check_update_best_design(car.get_distance(), car.get_average_speed()) && save_optim_network_flag)
+            if (optim_state.check_update_best_design(car) && save_optim_network_flag)
             {
                 // Save the resulting network
                 const std::string fname = get_temp_fname();
@@ -386,7 +410,7 @@ NeuralNetwork* GameState::get_selected_network()
 
 void GameState::increment_step_frequency()
 {
-    if (frequency_multipler < 5)
+    if (frequency_multipler < 4)
     {
         frequency_multipler += 1;
     }
@@ -400,14 +424,14 @@ void GameState::decrement_step_frequency()
     }
 }
 
-uint64_t GameState::current_frequency() const
+double GameState::base_period() const
 {
-    return car_step_base_frequency * std::pow(9, frequency_multipler);
+    return 1.0 / static_cast<double>(car_step_base_frequency);
 }
 
-double GameState::current_period() const
+uint32_t GameState::get_frequency_multiplier() const
 {
-    return 1.0 / current_frequency();
+    return frequency_multipler;
 }
 
 double GameState::get_input_forward() const

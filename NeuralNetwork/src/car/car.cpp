@@ -138,7 +138,7 @@ void Car::step_movement(const RoadGrid& grid, const double forward, const double
 
         // Set the forward and turn increments
         const double fwd_incr = 0.005 * ((input_same_sign) ? 1 : 10);
-        const double trn_incr = 0.085;
+        const double trn_incr = 0.085 * 2.0;
 
         // Filter the forward values
         const double fwd_val = step_filter(
@@ -159,8 +159,8 @@ void Car::step_movement(const RoadGrid& grid, const double forward, const double
         const double mod_trn = constrain_input(fwd_val * 2) * trn_val;
 
         // Set the turn rates and forward speed rates
-        const double turn_rate = 0.02 * mod_trn;
-        const double forward_speed = 1.5 * fwd_val;
+        const double turn_rate = 2 * mod_trn * step_period();
+        const double forward_speed = 150 * fwd_val * step_period();
 
         // Increment the rotation
         rotation = std::fmod(rotation + turn_rate, 2 * PI);
@@ -170,7 +170,12 @@ void Car::step_movement(const RoadGrid& grid, const double forward, const double
         y += std::sin(rotation) * forward_speed;
 
         // Increment the distance value
+        distance_prev = distance;
         distance += forward_speed;
+
+        // Update the maximum turn value
+        max_turn_right = std::max(max_turn_right, turn);
+        max_turn_left = std::max(max_turn_left, -turn);
 
         // Update the average speed and step count
         average_speed = (average_speed * car_step_count + forward_speed) / (car_step_count + 1.0);
@@ -251,6 +256,10 @@ void Car::reset()
     // Reset collision state and distance
     collided = false;
     distance = 0.0;
+    distance_prev = 0.0;
+
+    max_turn_right = 0.0;
+    max_turn_left = 0.0;
 
     // Reset rotation and x/y state
     rotation = std::fmod(start_rot, 2 * PI);
@@ -284,6 +293,16 @@ bool Car::has_collided() const
 double Car::get_distance() const
 {
     return distance;
+}
+
+double Car::get_delta_distance() const
+{
+    return distance - distance_prev;
+}
+
+double Car::step_period() const
+{
+    return 0.01;
 }
 
 Car::~Car()
@@ -348,6 +367,16 @@ double Car::get_average_speed() const
     return average_speed;
 }
 
+double Car::get_max_turn_right() const
+{
+    return max_turn_right;
+}
+
+double Car::get_max_turn_left() const
+{
+    return max_turn_left;
+}
+
 uint64_t Car::get_step_count() const
 {
     return car_step_count;
@@ -377,7 +406,7 @@ void Car::update_all_sensors(const RoadGrid& tile_grid)
         double yval = origin_y;
 
         // Define the sensor max range
-        const double sensor_max = 75.0;
+        const double sensor_max = 84.0;
 
         // Iterate up to the sensor max range
         double current_dist = 0.0;
@@ -398,6 +427,9 @@ void Car::update_all_sensors(const RoadGrid& tile_grid)
 
             current_dist += incr;
         }
+
+        // Normalize to max distance between 0 and 1
+        current_dist /= sensor_max;
 
         // Define the sensor result values
         sensor.result.start_x = origin_x;

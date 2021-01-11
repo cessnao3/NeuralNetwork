@@ -74,7 +74,7 @@ public:
     /// Updates the designs and steps the genetic algorithm once all new fitness
     /// values are assigned, resetting the fitness scores to zero for each new design
     /// </summary>
-    void update_design();
+    void update_designs();
 
     /// <summary>
     /// Provides the count of the design variables
@@ -109,6 +109,12 @@ protected:
     double get_random();
 
     /// <summary>
+    /// Obtains a random number to be used for the mutation values
+    /// </summary>
+    /// <returns>Mutation random number</returns>
+    double get_mutation_random();
+
+    /// <summary>
     /// Constrains the input value between the upper and lower bound
     /// </summary>
     /// <param name="val">value to constrain</param>
@@ -130,6 +136,11 @@ protected:
     /// The real distribution between 0 and 1 to use for generating random numbers
     /// </summary>
     std::uniform_real_distribution<double> distribution;
+
+    /// <summary>
+    /// The real distribution to use for generating mutation values
+    /// </summary>
+    std::uniform_real_distribution<double> mutation_distribution;
 
     /// <summary>
     /// The integer distribution to use to find a random index value

@@ -4,13 +4,13 @@
 #include "neural/net.h"
 #include "optim/genetic.h"
 
+#include "car/car.h"
+
 /// <summary>
 /// OptimState provides the overall state of the optimization
 /// </summary>
 class OptimState
 {
-    //friend class GameState;
-
 public:
     /// <summary>
     /// Constructs an object to track the overall optimization state
@@ -32,7 +32,7 @@ public:
     /// </summary>
     /// <param name="distance">the distance traveled</param>
     /// <returns>true if the best design has been updated</returns>
-    bool check_update_best_design(const double distance, const double avg_speed);
+    bool check_update_best_design(const Car& car);
 
     /// <summary>
     /// Steps to the next network, updating the optimization design variables as necessary
@@ -113,7 +113,7 @@ private:
     /// <summary>
     /// The best distance so far
     /// </summary>
-    double distance_best = 0.0;
+    double score_best = 0.0;
 
     /// <summary>
     /// The generation with the best distance so far

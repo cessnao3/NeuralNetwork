@@ -1,12 +1,12 @@
 #include "states/optim_state.h"
 
-const size_t OptimState::num_designs = 50;
+const size_t OptimState::num_designs = 400;
 
 OptimState::OptimState(
     const size_t num_inputs,
     const size_t num_outputs)
     :
-    net_optim(NeuralNetwork::from_layers({ num_inputs, 2 * num_inputs, num_outputs })),
+    net_optim(NeuralNetwork::from_layers({ num_inputs, num_inputs * 3, num_outputs })),
     net_best(net_optim),
     optim(num_designs, net_optim.get_links().size())
 {
@@ -37,16 +37,21 @@ bool OptimState::update_network_design()
     return reset_car;
 }
 
-bool OptimState::check_update_best_design(const double distance, const double avg_speed)
+bool OptimState::check_update_best_design(const Car& car)
 {
+    // Set the score
+    //const double score = std::pow(2.0, std::sqrt(car.get_distance() * car.get_average_speed()));
+    //const double score = car.get_distance() * (car.get_average_speed() + car.get_max_turn_left() + car.get_max_turn_right());
+    const double score = car.get_distance();
+
     // Set the fitness score
-    optim.set_design_fitness(current_design_index, distance * avg_speed);
+    optim.set_design_fitness(current_design_index, score);
 
     // Check if we shoudl update the values
-    if (distance > distance_best)
+    if (score > score_best)
     {
         // Update value and save if requested
-        distance_best = distance;
+        score_best = score;
         net_best = net_optim;
         num_best_update_count += 1;
         generation_best = current_generation;
@@ -69,7 +74,7 @@ void OptimState::step_to_next_design()
     if (current_design_index >= num_designs)
     {
         // If so, update the design variables and set parameters
-        optim.update_design();
+        optim.update_designs();
         current_generation += 1;
         current_design_index = 0;
     }
@@ -80,7 +85,7 @@ void OptimState::step_to_next_design()
 
 double OptimState::get_best_distance() const
 {
-    return distance_best;
+    return score_best;
 }
 
 NeuralNetwork* OptimState::get_optim_network()

@@ -60,16 +60,24 @@ bool NeuralNetwork::step_network()
         return false;
     }
 
+    // Define a node value vector
+    std::vector<double> node_values(nodes.size(), 0.0);
+    std::vector<double> sum_to_node(nodes.size(), 0.0);
+
     // Iterate over each layer, skipping the input layer
     for (size_t i = 1; i < layers.size(); ++i)
     {
         // Extract the layer
         NeuralLayer& layer = layers[i];
 
+        // Determine the previous layer size
+        const size_t prev_size = layers[i - 1].node_ids.size();
+
         // Reset each node value to zero
         for (size_t j = 0; j < layer.node_ids.size(); ++j)
         {
-            nodes[layer.node_ids[j]].set_value(0.0);
+            node_values[layer.node_ids[j]] = 0.0;
+            sum_to_node[layer.node_ids[j]] = 0.0;
         }
 
         // Iterate over each link in the layer
@@ -80,17 +88,18 @@ bool NeuralNetwork::step_network()
 
             // Extract the to/from values
             const NeuralNode& from = nodes[link.from_node_id()];
-            NeuralNode& to = nodes[link.to_node_id()];
 
-            // Update the value
-            to.set_value(to.get_value() + from.get_value() * link.get_gain());
+            // Add the resulting values to the node value
+            sum_to_node[link.to_node_id()] += std::abs(link.get_gain());
+            node_values[link.to_node_id()] += from.get_value() * link.get_gain();
         }
 
-        // Update to normalize between 0 and 1
+        // Set the new node values
         for (size_t j = 0; j < layer.node_ids.size(); ++j)
         {
-            NeuralNode& n = nodes[layer.node_ids[j]];
-            n.set_value(n.get_value() / layers[i - 1].node_ids.size());
+            const size_t node_id = layer.node_ids[j];
+            NeuralNode& n = nodes[node_id];
+            n.set_value(node_values[node_id] / std::max(0.01, sum_to_node[node_id]));
         }
     }
 
@@ -103,6 +112,14 @@ bool NeuralNetwork::add_layer()
     // Attempt to add the layer
     if (layers.size() == 0 || layers.back().node_ids.size() > 0)
     {
+        if (layers.size() > 0)
+        {
+            NeuralLayer& prev = layers[layers.size() - 1];
+            for (size_t i = 0; i < prev.node_ids.size(); ++i)
+            {
+                //nodes[prev.node_ids[i]].set_bias(0.0);
+            }
+        }
         layers.push_back(NeuralLayer());
         return true;
     }
@@ -135,19 +152,22 @@ bool NeuralNetwork::add_node()
             }
         }
 
+        // Define the bias value to use
+        const double bias = 0.1;
+
         // Define the new node
-        NeuralNode n(nodes.size());
+        NeuralNode n(nodes.size(), bias);
         nodes.push_back(n);
 
         // Add the node ID to the current layer
-        layers.back().add_node(n.node_id);
+        layers.back().add_node(n.get_node_id());
 
         // If a previous layer, add links from each of the nodes to this new node
         if (prev != nullptr)
         {
             for (size_t i = 0; i < prev->node_ids.size(); ++i)
             {
-                NeuralLink ln(links.size(), prev->node_ids[i], n.node_id);
+                NeuralLink ln(links.size(), prev->node_ids[i], n.get_node_id());
                 links.push_back(ln);
                 layers.back().add_link(ln.get_id());
             }
@@ -274,6 +294,12 @@ std::string NeuralNetwork::get_config() const
     // Write the number of nodes
     output << nodes.size() << std::endl;
 
+    // Write the bias values for each node
+    for (size_t i = 0; i < nodes.size(); ++i)
+    {
+        output << nodes[i].get_bias() << std::endl;
+    }
+
     // Write the number of links, and then the status value for each link
     output << links.size() << std::endl;
     for (size_t i = 0; i < links.size(); ++i)
@@ -324,7 +350,15 @@ NeuralNetwork NeuralNetwork::from_config(const std::string& config)
 
     for (size_t i = 0; i < num_nodes; ++i)
     {
-        net.nodes.push_back(NeuralNode(i));
+        double bias;
+        input >> bias;
+
+        if (!input)
+        {
+            throw std::invalid_argument("unable to read bias for node");
+        }
+
+        net.nodes.push_back(NeuralNode(i, bias));
     }
 
     // Read in the links
