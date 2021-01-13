@@ -9,8 +9,8 @@
 
 #include <cassert>
 
-const size_t GameState::num_forward_outputs = 2;
-const size_t GameState::num_turn_outputs = 2;
+const size_t GameState::num_forward_outputs = 10;
+const size_t GameState::num_turn_outputs = 10;
 
 const uint64_t GameState::car_step_base_frequency = 100;
 
@@ -310,7 +310,7 @@ void GameState::step_state_inner()
                 val = -val;
             }
 
-            input_forward += val / static_cast<double>(num_forward_outputs) / 0.5;
+            input_forward += val / static_cast<double>(num_forward_outputs);
         }
     }
 
@@ -326,7 +326,7 @@ void GameState::step_state_inner()
                 val = -val;
             }
 
-            input_right += val / static_cast<double>(num_turn_outputs) / 0.5;
+            input_right += val / static_cast<double>(num_turn_outputs);
         }
     }
 

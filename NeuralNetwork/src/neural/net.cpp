@@ -153,7 +153,7 @@ bool NeuralNetwork::add_node()
         }
 
         // Define the bias value to use
-        const double bias = 0.1;
+        const double bias = 0.0;
 
         // Define the new node
         NeuralNode n(nodes.size(), bias);
