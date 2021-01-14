@@ -1,9 +1,11 @@
 CXX=g++
-CXXFLAGS=-Wall -Werror -pedantic -Ihdr/
+CXXFLAGS=-Wall -Werror -pedantic -Isrc/
 CXXLIBS = $(shell pkg-config --libs allegro-5 allegro_primitives-5 allegro_ttf-5 allegro_font-5)
 
-SRC=$(wildcard src/car/*.cpp) $(wildcard src/neural/*.cpp) $(wildcard src/optim/*.cpp) $(wildcard src/states/*.cpp) $(wildcard src/tiles/*.cpp)
-HDRS=$(wildcard/hdr/car/*.h) $(wildcard hdr/neural/*.h) $(wildcard hdr/optim/*.h) $(wildcard hdr/states/*.h) $(wildcard hdr/tiles/*.h)
+SRCDIRS=car neural optim states tiles
+
+SRC=$(foreach folder,$(SRCDIRS),$(wildcard src/$(folder)/*.cpp))
+HDR=$(foreach folder,$(SRCDIRS),$(wildcard src/$(folder)/*.h))
 
 MAIN=src/main.cpp
 EXEC=neural.out
@@ -18,7 +20,7 @@ all: $(EXEC)
 $(EXEC): $(OBJS) $(MAIN)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJS) $(MAIN) $(CXXLIBS)
 
-%.o: %.cpp $(HDRS)
+%.o: %.cpp $(HDR)
 	$(CXX) -o $@ $(CXXFLAGS) -c $< $(CXXLIBS)
 
 clean:

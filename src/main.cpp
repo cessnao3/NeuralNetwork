@@ -72,7 +72,7 @@ ALLEGRO_DISPLAY* create_display(const GameState& state, bool fullscreen, ALLEGRO
     else
     {
         al_set_new_display_flags(ALLEGRO_WINDOWED);
-        scale_factor = 0.75;
+        scale_factor = 0.5;
     }
 
     // Create the display

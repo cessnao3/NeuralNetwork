@@ -70,9 +70,6 @@ bool NeuralNetwork::step_network()
         // Extract the layer
         NeuralLayer& layer = layers[i];
 
-        // Determine the previous layer size
-        const size_t prev_size = layers[i - 1].node_ids.size();
-
         // Reset each node value to zero
         for (size_t j = 0; j < layer.node_ids.size(); ++j)
         {
