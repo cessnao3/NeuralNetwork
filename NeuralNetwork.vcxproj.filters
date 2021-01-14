@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\car">
+      <UniqueIdentifier>{27369b60-626b-455b-a588-900662f59257}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\car">
+      <UniqueIdentifier>{7a29f9d8-a714-4c70-9761-b15895d0b9dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\neural">
+      <UniqueIdentifier>{269a5066-ab9e-4cb5-bf8c-75ee056284dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\neural">
+      <UniqueIdentifier>{d0b45ded-72f4-4757-ba0f-b48435005e8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\optim">
+      <UniqueIdentifier>{57a0172a-359a-467b-8296-939e59c50a14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\optim">
+      <UniqueIdentifier>{edc37251-6b39-48ec-a6a6-b0a3b981f256}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\states">
+      <UniqueIdentifier>{3d04e1cc-14ce-4563-b19c-898e26a7ca61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\states">
+      <UniqueIdentifier>{c7174359-c8a2-4cea-9d00-7a81f50a98a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tiles">
+      <UniqueIdentifier>{dc45556e-839e-4a41-9e4c-959a33442529}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tiles">
+      <UniqueIdentifier>{8537fd95-9b44-4d4c-af2c-7523a4b7ba80}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\car\car.h">
+      <Filter>Header Files\car</Filter>
+    </ClInclude>
+    <ClInclude Include="src\neural\layer.h">
+      <Filter>Header Files\neural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\neural\link.h">
+      <Filter>Header Files\neural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\neural\net.h">
+      <Filter>Header Files\neural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\neural\neural_exception.h">
+      <Filter>Header Files\neural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\neural\node.h">
+      <Filter>Header Files\neural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\optim\genetic.h">
+      <Filter>Header Files\optim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\game_state.h">
+      <Filter>Header Files\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\optim_state.h">
+      <Filter>Header Files\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tiles\road_tile.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tiles\road_tile_corner.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tiles\road_tile_grass.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tiles\road_tile_straight.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tiles\tile_grid.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tiles\tile_manager.h">
+      <Filter>Header Files\tiles</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\car\car.cpp">
+      <Filter>Source Files\car</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neural\layer.cpp">
+      <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neural\link.cpp">
+      <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neural\net.cpp">
+      <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\neural\node.cpp">
+      <Filter>Source Files\neural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\optim\genetic.cpp">
+      <Filter>Source Files\optim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\game_state.cpp">
+      <Filter>Source Files\states</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\optim_state.cpp">
+      <Filter>Source Files\states</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile_corner.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile_grass.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\road_tile_straight.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\tile_grid.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tiles\tile_manager.cpp">
+      <Filter>Source Files\tiles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
