@@ -12,10 +12,13 @@ EXEC=neural.out
 
 OBJS=$(patsubst %.cpp,%.o,$(SRC))
 
+all: $(EXEC)
+
 release: CXXFLAGS+=-O2
 release: all
 
-all: $(EXEC)
+debug: CXXFLAGS+=-g
+debug: all
 
 $(EXEC): $(OBJS) $(MAIN)
 	$(CXX) -o $@ $(CXXFLAGS) $(OBJS) $(MAIN) $(CXXLIBS)

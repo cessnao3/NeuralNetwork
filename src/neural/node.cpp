@@ -27,8 +27,8 @@ void NeuralNode::set_value(const double value)
     {
         //assert(false);
     }
-    //this->value = std::min(std::max(value, -1.0), 1.0);
-    this->value = value;
+    this->value = std::min(std::max(value, 0.0), 1.0);
+    //this->value = value;
 }
 
 size_t NeuralNode::get_node_id() const

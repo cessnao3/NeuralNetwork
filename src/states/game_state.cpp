@@ -20,7 +20,7 @@ const size_t GameState::tile_grid_height = 9;
 static const bool include_inverse = false;
 
 GameState::GameState() :
-    optim_state(car.sensor_count() * (include_inverse ? 2 : 1), num_forward_outputs + num_turn_outputs)
+    optim_state(car.sensor_count() * (include_inverse ? 2 : 1), num_forward_outputs * 2 + num_turn_outputs * 2)
 {
     // Read the file result
     file_net_loaded = false;
@@ -298,35 +298,41 @@ void GameState::step_state_inner()
     input_forward = 0.0;
     input_right = 0.0;
 
-    for (size_t i = 0; i < num_forward_outputs; ++i)
+    const double activation_threshold = 0.1;
+
+    for (size_t i = 0; i < num_forward_outputs * 2; ++i)
     {
-        const bool is_neg = i % 2 == 0;
+        const bool is_neg = i >= num_forward_outputs;
 
         double val = 0.0;
         if (selected_net->get_output(i, val))
         {
-            if (is_neg)
+            if (val > activation_threshold)
             {
-                val = -val;
+                input_forward += (is_neg ? -1.0 : 1.0) / static_cast<double>(num_forward_outputs);
             }
-
-            input_forward += val / static_cast<double>(num_forward_outputs);
+        }
+        else
+        {
+            assert(false);
         }
     }
 
-    for (size_t i = 0; i < num_turn_outputs; ++i)
+    for (size_t i = 0; i < num_turn_outputs * 2; ++i)
     {
-        const bool is_neg = i % 2 == 0;
+        const bool is_neg = i >= num_turn_outputs;
 
         double val = 0.0;
-        if (selected_net->get_output(num_forward_outputs + i, val))
+        if (selected_net->get_output(num_forward_outputs * 2 + i, val))
         {
-            if (is_neg)
+            if (val > activation_threshold)
             {
-                val = -val;
+                input_right += (is_neg ? -1.0 : 1.0) / static_cast<double>(num_turn_outputs);
             }
-
-            input_right += val / static_cast<double>(num_turn_outputs);
+        }
+        else
+        {
+            assert(false);
         }
     }
 
