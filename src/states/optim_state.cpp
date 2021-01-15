@@ -1,12 +1,12 @@
 #include "states/optim_state.h"
 
-const size_t OptimState::num_designs = 400;
+const size_t OptimState::num_designs = 100;
 
 OptimState::OptimState(
     const size_t num_inputs,
     const size_t num_outputs)
     :
-    net_optim(NeuralNetwork::from_layers({ num_inputs, num_inputs + 5, num_inputs + 5, num_outputs })),
+    net_optim(NeuralNetwork::from_layers({ num_inputs, num_inputs * 2, num_outputs })),
     net_best(net_optim),
     optim(num_designs, net_optim.get_links().size())
 {

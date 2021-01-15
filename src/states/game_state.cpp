@@ -20,8 +20,12 @@ const size_t GameState::tile_grid_height = 9;
 static const bool include_inverse = false;
 
 GameState::GameState() :
-    optim_state(car.sensor_count() * (include_inverse ? 2 : 1), num_forward_outputs * 2 + num_turn_outputs * 2)
+    optim_state(car.sensor_count() * (include_inverse ? 2 : 1), num_forward_outputs + num_turn_outputs)
 {
+    // Check the game state values
+    static_assert(GameState::num_forward_outputs % 2 == 0, "Forward Inputs must be divisible by two");
+    static_assert(GameState::num_turn_outputs % 2 == 0, "Turn Inputs must be divisible by two");
+
     // Read the file result
     file_net_loaded = false;
 
@@ -207,7 +211,7 @@ GameState::GameState() :
     // Initialize the starting position
     const RoadGrid::GridLoc* start_pos = get_tile_grid()->at(get_tile_grid()->get_start_ind());
     car.set_pos(start_pos->get_center_x(), start_pos->get_center_y());
-    car.set_start_rotation(1 * car.PI / 2);
+    car.set_start_rotation(3 * car.PI / 2);
 
     // Reset the car
     reset_car();
@@ -300,16 +304,16 @@ void GameState::step_state_inner()
 
     const double activation_threshold = 0.1;
 
-    for (size_t i = 0; i < num_forward_outputs * 2; ++i)
+    for (size_t i = 0; i < num_forward_outputs; ++i)
     {
-        const bool is_neg = i >= num_forward_outputs;
+        const bool is_neg = i % 2 == 0;
 
         double val = 0.0;
         if (selected_net->get_output(i, val))
         {
             if (val > activation_threshold)
             {
-                input_forward += (is_neg ? -1.0 : 1.0) / static_cast<double>(num_forward_outputs);
+                input_forward += (is_neg ? -1.0 : 1.0) * val / static_cast<double>(num_forward_outputs);
             }
         }
         else
@@ -318,16 +322,16 @@ void GameState::step_state_inner()
         }
     }
 
-    for (size_t i = 0; i < num_turn_outputs * 2; ++i)
+    for (size_t i = 0; i < num_turn_outputs; ++i)
     {
-        const bool is_neg = i >= num_turn_outputs;
+        const bool is_neg = i % 2 == 0;
 
         double val = 0.0;
-        if (selected_net->get_output(num_forward_outputs * 2 + i, val))
+        if (selected_net->get_output(num_forward_outputs + i, val))
         {
             if (val > activation_threshold)
             {
-                input_right += (is_neg ? -1.0 : 1.0) / static_cast<double>(num_turn_outputs);
+                input_right += (is_neg ? -1.0 : 1.0) * val / static_cast<double>(num_turn_outputs);
             }
         }
         else

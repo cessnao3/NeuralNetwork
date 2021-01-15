@@ -96,7 +96,9 @@ bool NeuralNetwork::step_network()
         {
             const size_t node_id = layer.node_ids[j];
             NeuralNode& n = nodes[node_id];
-            n.set_value(node_values[node_id] / std::max(0.01, sum_to_node[node_id]));
+            //sum_to_node[node_id] = 1.0;
+            const double value = node_values[node_id] / std::max(0.01, sum_to_node[node_id] * 2.0);
+            n.set_value(value);
         }
     }
 
@@ -114,7 +116,7 @@ bool NeuralNetwork::add_layer()
             NeuralLayer& prev = layers[layers.size() - 1];
             for (size_t i = 0; i < prev.node_ids.size(); ++i)
             {
-                //nodes[prev.node_ids[i]].set_bias(0.0);
+                nodes[prev.node_ids[i]].set_bias(0.0);
             }
         }
         layers.push_back(NeuralLayer());
