@@ -22,6 +22,7 @@ Car::Car()
         true, true, true, true, true, true, true
     };
 
+    // Initialize the sensor values
     for (size_t i = 0; i < delta_lons.size(); ++i)
     {
         Sensor s;
@@ -30,6 +31,9 @@ Car::Car()
         s.is_front = fronts[i];
         sensors[i] = s;
     }
+
+    // Call the reset function to reset all other variables
+    reset();
 }
 
 void Car::init_bitmap()
@@ -429,7 +433,7 @@ void Car::update_all_sensors(const RoadGrid& tile_grid)
         }
 
         // Normalize to max distance between 0 and 1
-        current_dist /= sensor_max;
+        //current_dist /= sensor_max;
 
         // Define the sensor result values
         sensor.result.start_x = origin_x;

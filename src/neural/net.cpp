@@ -96,8 +96,10 @@ bool NeuralNetwork::step_network()
         {
             const size_t node_id = layer.node_ids[j];
             NeuralNode& n = nodes[node_id];
-            //sum_to_node[node_id] = 1.0;
-            const double value = node_values[node_id] / std::max(0.01, sum_to_node[node_id] * 2.0);
+
+            sum_to_node[node_id] = 1.0;
+            const double value = node_values[node_id] / std::max(0.01, sum_to_node[node_id]);
+
             n.set_value(value);
         }
     }

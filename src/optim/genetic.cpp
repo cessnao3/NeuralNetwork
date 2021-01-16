@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-const double GeneticOptim::lower_bound = 0.0;
+const double GeneticOptim::lower_bound = -1.0;
 const double GeneticOptim::upper_bound = 1.0;
 
 GeneticOptim::OptimStatus::OptimStatus(const size_t num_vars) :

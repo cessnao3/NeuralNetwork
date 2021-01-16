@@ -361,6 +361,11 @@ protected:
     /// Defines the sensor values associated with the car
     /// </summary>
     std::array<Sensor, num_sensors> sensors;
+
+    /// <summary>
+    /// Defines the number of steps to keep the history for
+    /// </summary>
+    const static size_t num_history = 100;
 };
 
 #endif

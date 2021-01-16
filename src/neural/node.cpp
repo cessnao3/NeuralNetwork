@@ -13,10 +13,11 @@ NeuralNode::NeuralNode(const size_t node_id, const double bias) :
 
 double NeuralNode::get_value() const
 {
-    const bool is_neg = value < 0.0;
-    const double value_out = std::max(0.0, (std::abs(value) - bias) / (1.0 - bias)) * (is_neg ? -1.0 : 1.0);
+    //const bool is_neg = value < 0.0;
+    //const double value_out = std::max(0.0, (std::abs(value) - bias) / (1.0 - bias)) * (is_neg ? -1.0 : 1.0);
+    const double value_out = value;
 
-    assert(std::abs(value_out) <= 1.0);
+    //assert(std::abs(value_out) <= 1.0);
 
     return value_out;
 }
@@ -27,8 +28,8 @@ void NeuralNode::set_value(const double value)
     {
         //assert(false);
     }
-    this->value = std::min(std::max(value, 0.0), 1.0);
-    //this->value = value;
+    //this->value = std::min(std::max(value, -1.0), 1.0);
+    this->value = value;
 }
 
 size_t NeuralNode::get_node_id() const

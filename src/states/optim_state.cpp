@@ -40,14 +40,12 @@ bool OptimState::update_network_design()
 bool OptimState::check_update_best_design(const Car& car)
 {
     // Set the score
-    //const double score = std::pow(2.0, std::sqrt(car.get_distance() * car.get_average_speed()));
-    //const double score = car.get_distance() * (car.get_average_speed() + car.get_max_turn_left() + car.get_max_turn_right());
     const double score = car.get_distance();
 
     // Set the fitness score
     optim.set_design_fitness(current_design_index, score);
 
-    // Check if we shoudl update the values
+    // Check if we should update the values
     if (score > score_best)
     {
         // Update value and save if requested

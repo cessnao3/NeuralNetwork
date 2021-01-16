@@ -306,14 +306,16 @@ void GameState::step_state_inner()
 
     for (size_t i = 0; i < num_forward_outputs; ++i)
     {
-        const bool is_neg = i % 2 == 0;
-
         double val = 0.0;
         if (selected_net->get_output(i, val))
         {
             if (val > activation_threshold)
             {
-                input_forward += (is_neg ? -1.0 : 1.0) * val / static_cast<double>(num_forward_outputs);
+                input_forward += 1.0 / static_cast<double>(num_turn_outputs);
+            }
+            else if (val < -activation_threshold)
+            {
+                input_forward -= 1.0 / static_cast<double>(num_turn_outputs);
             }
         }
         else
@@ -324,14 +326,16 @@ void GameState::step_state_inner()
 
     for (size_t i = 0; i < num_turn_outputs; ++i)
     {
-        const bool is_neg = i % 2 == 0;
-
         double val = 0.0;
         if (selected_net->get_output(num_forward_outputs + i, val))
         {
             if (val > activation_threshold)
             {
-                input_right += (is_neg ? -1.0 : 1.0) * val / static_cast<double>(num_turn_outputs);
+                input_right += 1.0 / static_cast<double>(num_turn_outputs);
+            }
+            else if (val < -activation_threshold)
+            {
+                input_right -= 1.0 / static_cast<double>(num_turn_outputs);
             }
         }
         else
