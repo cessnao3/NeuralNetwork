@@ -54,7 +54,22 @@ public:
     void step_state();
 
 private:
+    /// <summary>
+    /// Performs the inner-step to perform one iteration of the step
+    /// </summary>
     void step_state_inner();
+
+    /// <summary>
+    /// Obtains an input value from the given network
+    /// </summary>
+    /// <param name="selected_net">the neural network to obtain outputs from</param>
+    /// <param name="init_index">the initial output index</param>
+    /// <param name="input_size">the number of contributing network indices</param>
+    /// <returns>the resulting input value, between [-1.0, 1.0], inclusive</returns>
+    double get_input_value(
+        const NeuralNetwork* selected_net,
+        const size_t init_index,
+        const size_t input_size) const;
 
 public:
     /// <summary>

@@ -66,7 +66,7 @@ public:
     /// <returns>true if successful</returns>
     bool get_output(
         const size_t index,
-        double& output);
+        double& output) const;
 
     /// <summary>
     /// Provides the number of inputs

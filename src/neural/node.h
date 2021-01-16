@@ -14,7 +14,7 @@ public:
     /// </summary>
     /// <param name="node_id">the node ID for the current node</param>
     /// <param name="bias">the input bias for the given node value</param>
-    NeuralNode(const size_t node_id, const double bias);
+    NeuralNode(const size_t node_id);
 
     /// <summary>
     /// Provides the current value associated with the node
@@ -34,18 +34,6 @@ public:
     /// <returns>the node ID value</returns>
     size_t get_node_id() const;
 
-    /// <summary>
-    /// Provides the current bias for the node
-    /// </summary>
-    /// <returns>bias value</returns>
-    double get_bias() const;
-
-    /// <summary>
-    /// Sets the new bias value for the node between 0.0 and 1.0
-    /// </summary>
-    /// <param name="bias">the new bias value</param>
-    bool set_bias(const double bias);
-
 private:
     /// <summary>
     /// The current node ID
@@ -56,11 +44,6 @@ private:
     /// Contains the current value associated with the class
     /// </summary>
     double value;
-
-    /// <summary>
-    /// Contains the bias value used to determine activation of the given node
-    /// </summary>
-    double bias;
 };
 
 #endif

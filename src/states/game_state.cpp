@@ -22,10 +22,6 @@ static const bool include_inverse = false;
 GameState::GameState() :
     optim_state(car.sensor_count() * (include_inverse ? 2 : 1), num_forward_outputs + num_turn_outputs)
 {
-    // Check the game state values
-    static_assert(GameState::num_forward_outputs % 2 == 0, "Forward Inputs must be divisible by two");
-    static_assert(GameState::num_turn_outputs % 2 == 0, "Turn Inputs must be divisible by two");
-
     // Read the file result
     file_net_loaded = false;
 
@@ -49,7 +45,7 @@ GameState::GameState() :
 
     // Define the road grid
     {
-        const size_t row_offset = 0;
+        const size_t row_offset = 1;
         const size_t col_offset = 1;
 
         RoadGrid tile_grid(16, 9);
@@ -63,11 +59,6 @@ GameState::GameState() :
         tile_grid.set(row_offset + 1, col_offset + 0, RoadTileManager::RoadTileType::CORNER_SE);
         tile_grid.set(row_offset + 2, col_offset + 0, RoadTileManager::RoadTileType::STRAIGHT_V);
         tile_grid.set(row_offset + 3, col_offset + 0, RoadTileManager::RoadTileType::CORNER_NE);
-
-        //tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::CORNER_NW);
-        //tile_grid.set(row_offset + 2, col_offset + 1, RoadTileManager::RoadTileType::CORNER_SE);
-        //tile_grid.set(row_offset + 2, col_offset + 2, RoadTileManager::RoadTileType::CORNER_SW);
-        //tile_grid.set(row_offset + 3, col_offset + 2, RoadTileManager::RoadTileType::CORNER_NE);
 
         tile_grid.set(row_offset + 3, col_offset + 1, RoadTileManager::RoadTileType::STRAIGHT_H);
         tile_grid.set(row_offset + 3, col_offset + 2, RoadTileManager::RoadTileType::STRAIGHT_H);
@@ -299,58 +290,22 @@ void GameState::step_state_inner()
     }
 
     // Set the outputs
-    input_forward = 0.0;
-    input_right = 0.0;
-
-    const double activation_threshold = 0.1;
-
-    for (size_t i = 0; i < num_forward_outputs; ++i)
-    {
-        double val = 0.0;
-        if (selected_net->get_output(i, val))
-        {
-            if (val > activation_threshold)
-            {
-                input_forward += 1.0 / static_cast<double>(num_turn_outputs);
-            }
-            else if (val < -activation_threshold)
-            {
-                input_forward -= 1.0 / static_cast<double>(num_turn_outputs);
-            }
-        }
-        else
-        {
-            assert(false);
-        }
-    }
-
-    for (size_t i = 0; i < num_turn_outputs; ++i)
-    {
-        double val = 0.0;
-        if (selected_net->get_output(num_forward_outputs + i, val))
-        {
-            if (val > activation_threshold)
-            {
-                input_right += 1.0 / static_cast<double>(num_turn_outputs);
-            }
-            else if (val < -activation_threshold)
-            {
-                input_right -= 1.0 / static_cast<double>(num_turn_outputs);
-            }
-        }
-        else
-        {
-            assert(false);
-        }
-    }
+    input_forward = get_input_value(
+        selected_net,
+        0,
+        num_forward_outputs);
+    input_right = get_input_value(
+        selected_net,
+        num_forward_outputs,
+        num_turn_outputs);
 
     // Step the car
     car.step_movement(*get_tile_grid(), input_forward, input_right);
 
     // Determine if the car is stuck
-    const bool is_stuck = std::abs(car.get_forward_input()) < 1e-3 || car.get_distance() < -10.0;
-        //(std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_input()) < 1e-6);// ||
-        //(std::abs(car.get_delta_distance() < 0.05) && car.get_step_count() * car.step_period() > 3.0);
+    const bool is_stuck = std::abs(car.get_forward_input()) < 1e-3 || car.get_distance() < -10.0 ||
+        (std::abs(input_forward) < 1e-6 && std::abs(car.get_forward_input()) < 1e-6) ||
+        (std::abs(car.get_delta_distance() < 0.05) && car.get_step_count() * car.step_period() > 3.0);
 
     // Perform special consideration values for
     if (current_mode == GameMode::OPTIM)
@@ -383,6 +338,37 @@ void GameState::step_state_inner()
             reset_car();
         }
     }
+}
+
+double GameState::get_input_value(
+    const NeuralNetwork* selected_net,
+    const size_t init_index,
+    const size_t input_size) const
+{
+    const double activation_threshold = 0.2;
+    double input_value = 0.0;
+
+    for (size_t i = 0; i < input_size; ++i)
+    {
+        double val = 0.0;
+        if (selected_net->get_output(init_index + i, val))
+        {
+            if (val > activation_threshold)
+            {
+                input_value += 1.0 / static_cast<double>(input_size);
+            }
+            else if (val < -activation_threshold)
+            {
+                input_value -= 1.0 / static_cast<double>(input_size);
+            }
+        }
+        else
+        {
+            assert(false);
+        }
+    }
+
+    return input_value;
 }
 
 GameState::GameMode GameState::get_current_mode() const

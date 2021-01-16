@@ -251,6 +251,9 @@ int main()
                 // Draw the background
                 al_draw_bitmap(background_bitmap, 0, 0, 0);
 
+                // Hold bitmap drawing
+                al_hold_bitmap_drawing(false);
+
                 // Extract the car
                 const Car& car = state.car;
 
@@ -396,6 +399,9 @@ int main()
                             output.str().c_str());
                     }
                 }
+
+                // Release to allow drawing
+                al_hold_bitmap_drawing(true);
 
                 // Flip the Display Buffer
                 al_flip_display();

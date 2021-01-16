@@ -2,8 +2,10 @@
 
 #include <stdexcept>
 
-const double GeneticOptim::lower_bound = -5.0;
-const double GeneticOptim::upper_bound = 5.0;
+static const double bound_value = 5.0;;
+
+const double GeneticOptim::lower_bound = -bound_value;
+const double GeneticOptim::upper_bound = bound_value;
 
 GeneticOptim::OptimStatus::OptimStatus(const size_t num_vars) :
     design_variables(num_vars, 0.0),
@@ -169,7 +171,7 @@ void GeneticOptim::update_designs()
             desvar = w1 * val_max.design_variables[j] + w2 * val_min.design_variables[j];
 
             // Provide some mutation into the design variable
-            const double mutation = get_mutation_random() * 0.1 * (upper_bound - lower_bound) / 2.0;
+            const double mutation = get_mutation_random() * 0.1 * (upper_bound - lower_bound);
             desvar += mutation;
 
             // Limit the design variable to the upper and lower bounds
