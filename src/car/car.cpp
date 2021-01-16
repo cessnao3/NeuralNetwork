@@ -142,7 +142,7 @@ void Car::step_movement(const RoadGrid& grid, const double forward, const double
 
         // Set the forward and turn increments
         const double fwd_incr = 0.005 * ((input_same_sign) ? 1 : 10);
-        const double trn_incr = 0.085 * 2.0;
+        const double trn_incr = 0.085;
 
         // Filter the forward values
         const double fwd_val = step_filter(
