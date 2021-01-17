@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-static const double bound_value = 5.0;;
+static const double bound_value = 10.0;
 
 const double GeneticOptim::lower_bound = -bound_value;
 const double GeneticOptim::upper_bound = bound_value;

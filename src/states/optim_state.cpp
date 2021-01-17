@@ -1,6 +1,6 @@
 #include "states/optim_state.h"
 
-const size_t OptimState::num_designs = 400;
+const size_t OptimState::num_designs = 200;
 
 OptimState::OptimState(
     const size_t num_inputs,

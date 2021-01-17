@@ -198,11 +198,7 @@ GameState::GameState() :
 
     // Initialize the tile grid values to the first grid
     tile_grid_index = 0;
-
-    // Initialize the starting position
-    const RoadGrid::GridLoc* start_pos = get_tile_grid()->at(get_tile_grid()->get_start_ind());
-    car.set_pos(start_pos->get_center_x(), start_pos->get_center_y());
-    car.set_start_rotation(3 * car.PI / 2);
+    set_tile_grid_index(tile_grid_index);
 
     // Reset the car
     reset_car();
@@ -488,7 +484,14 @@ void GameState::set_tile_grid_index(const size_t ind)
     }
     else
     {
+        // Set the index
         tile_grid_index = ind;
+
+        // Initialize the starting position
+        const RoadGrid* selected_grid = get_tile_grid();
+        const RoadGrid::GridLoc* start_pos = selected_grid->at(selected_grid->get_start_ind());
+        car.set_pos(start_pos->get_center_x(), start_pos->get_center_y());
+        car.set_start_rotation(3 * car.PI / 2);
     }
 }
 

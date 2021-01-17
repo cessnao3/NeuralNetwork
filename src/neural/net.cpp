@@ -319,6 +319,12 @@ NeuralNetwork NeuralNetwork::from_config(const std::string& config)
         throw std::invalid_argument("cannot provide zero nodes as input to network");
     }
 
+    // Define the nodes
+    for (size_t i = 0; i < num_nodes; ++i)
+    {
+        net.nodes.push_back(NeuralNode(i));
+    }
+
     // Read in the links
     size_t num_links;
     input >> num_links;
