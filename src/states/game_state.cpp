@@ -252,16 +252,6 @@ void GameState::step_state()
 
 void GameState::step_state_inner()
 {
-    // Check the current game mode and update if necessary
-    if (get_current_mode() == GameMode::OPTIM && optim_state.get_current_generation() > 100)
-    {
-        set_game_mode(GameMode::BEST);
-        while (get_frequency_multiplier() > 0)
-        {
-            decrement_step_frequency();
-        }
-    }
-
     // Update the optimization step
     if (optim_state.update_network_design())
     {

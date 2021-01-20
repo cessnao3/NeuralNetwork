@@ -108,7 +108,7 @@ int main()
     //state.set_tile_grid_index(0);
 
     // Initialize the display
-    bool is_fullscreen = true;
+    bool is_fullscreen = false;
     ALLEGRO_TRANSFORM display_transform;
     ALLEGRO_DISPLAY* display = create_display(
         state,
