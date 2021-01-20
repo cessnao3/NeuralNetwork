@@ -66,7 +66,7 @@ void GeneticOptim::init_population(const std::vector<double>& other)
         // Define a new design variable within 25% of the previous value, limiting the results
         for (size_t j = 0; j < designs[i].design_variables.size(); ++j)
         {
-            designs[i].design_variables[j] = constrain_value(other[j] + 0.25 * get_mutation_random());
+            designs[i].design_variables[j] = constrain_value(other[j] + 0.25 * get_mutation_random() * (upper_bound - lower_bound));
         }
     }
 }
@@ -144,10 +144,6 @@ void GeneticOptim::update_designs()
     // Perform the sample combinations
     for (size_t i = 0; i < designs.size(); ++i)
     {
-        // Define weights
-        const double w1 = 0.5;
-        const double w2 = 1.0 - w1;
-
         // Define the two value indices
         const size_t ind1 = combination_group[2 * i];
         const size_t ind2 = combination_group[2 * i + 1];
@@ -160,6 +156,10 @@ void GeneticOptim::update_designs()
         const OptimStatus& val_max = (o1.fitness > o2.fitness) ? o1 : o2;
         const OptimStatus& val_min = (o1.fitness > o2.fitness) ? o2 : o1;
 
+        // Define weights
+        const double w1 = val_max.fitness / std::max(val_max.fitness + val_min.fitness, 0.01);
+        const double w2 = 1.0 - w1;
+
         // Obtain the child to set into the new population result
         OptimStatus& child = new_population[i];
 
@@ -171,7 +171,7 @@ void GeneticOptim::update_designs()
             desvar = w1 * val_max.design_variables[j] + w2 * val_min.design_variables[j];
 
             // Provide some mutation into the design variable
-            const double mutation = get_mutation_random() * 0.1 * (upper_bound - lower_bound);
+            const double mutation = get_mutation_random() * 0.05 * (upper_bound - lower_bound);
             desvar += mutation;
 
             // Limit the design variable to the upper and lower bounds

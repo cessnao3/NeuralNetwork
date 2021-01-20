@@ -66,7 +66,7 @@ ALLEGRO_DISPLAY* create_display(const GameState& state, bool fullscreen, ALLEGRO
     // Apply options and adjust parameters for fullscreen or not
     if (fullscreen)
     {
-        al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+        al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
         scale_factor = 1.0;
     }
     else
@@ -108,7 +108,7 @@ int main()
     //state.set_tile_grid_index(0);
 
     // Initialize the display
-    bool is_fullscreen = false;
+    bool is_fullscreen = true;
     ALLEGRO_TRANSFORM display_transform;
     ALLEGRO_DISPLAY* display = create_display(
         state,
@@ -139,7 +139,7 @@ int main()
     // Define an event timer for the physics step
     ALLEGRO_TIMER* car_step_timer = al_create_timer(state.base_period());
     al_register_event_source(timer_queue, al_get_timer_event_source(car_step_timer));
-    al_start_timer(car_step_timer);
+    //al_start_timer(car_step_timer);
 
     // Load the font
     ALLEGRO_FONT* font = al_load_ttf_font("font/DejaVuSansMono.ttf", 20, 0);

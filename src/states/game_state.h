@@ -228,7 +228,7 @@ private:
     /// <summary>
     /// Defines the frequency multiplier to use to modify the game state
     /// </summary>
-    uint32_t frequency_multipler = 0;
+    uint32_t frequency_multipler = 3;
 
     /// <summary>
     /// Defines the requested forward input
@@ -254,7 +254,7 @@ private:
     /// <summary>
     /// Determines whether to save the next best value
     /// </summary>
-    bool save_optim_network_flag = false;
+    bool save_optim_network_flag = true;
 
     /// <summary>
     /// Define sthe current game mode
