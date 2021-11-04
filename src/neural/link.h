@@ -2,6 +2,7 @@
 #define __IO_NEURAL_LINK__
 
 #include <vector>
+#include <cstddef>
 
 class NeuralLink
 {

@@ -2,6 +2,7 @@
 #define __IO_NEURAL_NODE__
 
 #include <vector>
+#include <cstddef>
 
 /// <summary>
 /// Defines a given Neural network node
