@@ -38,13 +38,22 @@ NeuralNetwork NeuralNetwork::from_layers(const std::vector<size_t>& layers)
         // Add each node value
         for (size_t j = 0; j < layers[i]; ++j)
         {
-            if (!net.add_node())
+            if (!net.add_node(false))
             {
                 std::ostringstream ss;
                 ss << "unable to add node " << static_cast<int>(j) << " for layer " << static_cast<int>(i);
                 throw  neural_exception(ss.str());
             }
         }
+
+        // Add a bias node
+        if (!net.add_node(true))
+        {
+            std::ostringstream ss;
+            ss << "unable to add bias node for layer " << static_cast<int>(i);
+            throw  neural_exception(ss.str());
+        }
+
     }
 
     // Return the net
@@ -109,7 +118,7 @@ bool NeuralNetwork::add_layer()
     }
 }
 
-bool NeuralNetwork::add_node()
+bool NeuralNetwork::add_node(const bool bias_node)
 {
     // Ensure that layers are provided
     if (layers.size() == 0)
@@ -133,7 +142,7 @@ bool NeuralNetwork::add_node()
         }
 
         // Define the new node
-        NeuralNode n(nodes.size());
+        NeuralNode n(nodes.size(), bias_node);
         nodes.push_back(n);
 
         // Add the node ID to the current layer
@@ -166,8 +175,17 @@ bool NeuralNetwork::set_input(const size_t index, const double value)
         // Set the value and return success if the node index is within the nodes
         if (nodes.size() > node_idx)
         {
-            nodes[node_idx].set_value(value);
-            return true;
+            NeuralNode& node = nodes[node_idx];
+
+            if (node.is_bias_node())
+            {
+                return false;
+            }
+            else
+            {
+                nodes[node_idx].set_value(value);
+                return true;
+            }
         }
         else
         {
@@ -191,8 +209,17 @@ bool NeuralNetwork::get_output(const size_t index, double& output) const
         // Set the value and return success if the node index is within the nodes
         if (nodes.size() > node_idx)
         {
-            output = nodes[node_idx].get_value();
-            return true;
+            const NeuralNode& node = nodes[node_idx];
+
+            if (node.is_bias_node())
+            {
+                return false;
+            }
+            else
+            {
+                output = nodes[node_idx].get_value();
+                return true;
+            }
         }
         else
         {
@@ -271,6 +298,12 @@ std::string NeuralNetwork::get_config() const
     // Write the number of nodes
     output << nodes.size() << std::endl;
 
+    // Write whether each node is a bias node or not
+    for (auto i = nodes.begin(); i != nodes.end(); ++i)
+    {
+        output << (i->is_bias_node() ? 1 : 0) << std::endl;
+    }
+
     // Write the number of links, and then the status value for each link
     output << links.size() << std::endl;
     for (size_t i = 0; i < links.size(); ++i)
@@ -322,7 +355,15 @@ NeuralNetwork NeuralNetwork::from_config(const std::string& config)
     // Define the nodes
     for (size_t i = 0; i < num_nodes; ++i)
     {
-        net.nodes.push_back(NeuralNode(i));
+        bool is_bias = false;
+        input >> is_bias;
+
+        if (!input)
+        {
+            throw std::invalid_argument("cannot read bias node input");
+        }
+
+        net.nodes.push_back(NeuralNode(i, is_bias));
     }
 
     // Read in the links

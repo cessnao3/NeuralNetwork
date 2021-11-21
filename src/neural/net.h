@@ -45,8 +45,9 @@ public:
     /// Adds a new node to the last layer, and creates links with all
     /// nodes in the previous layer.
     /// </summary>
+    /// <param name="bias_node">determines whether the node to add should be a bias node or not</param>
     /// <returns>true if successful</returns>
-    bool add_node();
+    bool add_node(const bool bias_node);
 
     /// <summary>
     /// Sets the given input to a provided value

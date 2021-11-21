@@ -15,7 +15,7 @@ public:
     /// </summary>
     /// <param name="node_id">the node ID for the current node</param>
     /// <param name="bias">the input bias for the given node value</param>
-    NeuralNode(const size_t node_id);
+    NeuralNode(const size_t node_id, const bool bias_node);
 
     /// <summary>
     /// Provides the current value associated with the node
@@ -35,6 +35,12 @@ public:
     /// <returns>the node ID value</returns>
     size_t get_node_id() const;
 
+    /// <summary>
+    /// Returns whether the current node is a bias node
+    /// </summary>
+    /// <returns>true if the node is a bias node</returns>
+    bool is_bias_node() const;
+
 private:
     /// <summary>
     /// The current node ID
@@ -45,6 +51,11 @@ private:
     /// Contains the current value associated with the class
     /// </summary>
     double value;
+
+    /// <summary>
+    /// Defines whether the current node is a bias node
+    /// </summary>
+    bool bias_node;
 };
 
 #endif
