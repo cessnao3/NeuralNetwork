@@ -254,7 +254,7 @@ private:
     /// <summary>
     /// Determines whether to save the next best value
     /// </summary>
-    bool save_optim_network_flag = true;
+    bool save_optim_network_flag = false;
 
     /// <summary>
     /// Define sthe current game mode
