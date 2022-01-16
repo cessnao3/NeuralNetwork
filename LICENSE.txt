@@ -1,3 +1,0 @@
-This project uses a font from DejaVu fonts, DejaVuSans.ttf.
-Its license can be found here:
-<https://dejavu-fonts.github.io/License.html>
