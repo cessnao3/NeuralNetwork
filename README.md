@@ -2,6 +2,12 @@
 
 This is a simple optimising neural network to teach a car how to drive around a simple course.
 
+## Images
+
+![picture](images/image_0.png)
+
+![picture](images/image_1.png)
+
 ## Methodology
 
 The car has five sensors that give it distances from the walls of the course.
